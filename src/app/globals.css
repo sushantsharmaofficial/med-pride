@@ -1,20 +1,112 @@
 @import "tailwindcss";
 
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
+
+ 
 }
 
-@theme inline {
+@theme  {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+
+  /* text-size */
+  --text-sm: 12px;
+  --text-base: 16px;
+  --text-lg: 20px;
+  --text-xl: 24px;
+  --text-2xl: 32px;
+  --text-3xl: 40px;
+
+
+  /* primary colors */
+  --color-primary: #00347f;
+  --color-secondary: #0087ff;
+
+  /* fonts */
+  --font-primary: "Playfair", serif;
+  --font-secondary: "Nunito", sans-serif;
+  --font-tertiary: "Fira Sans", sans-serif;
+ 
+}
+
+/* Custom Pop-out Shadow Effects */
+.shadow-pop-sm {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 
+              0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+}
+
+.shadow-pop-sm:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 
+              0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.shadow-pop-md {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 
+              0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+}
+
+.shadow-pop-md:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 
+              0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.shadow-pop-lg {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 
+              0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.shadow-pop-lg:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.shadow-pop-colored {
+  box-shadow: 0 4px 6px -1px rgba(0, 52, 127, 0.3), 
+              0 2px 4px -1px rgba(0, 135, 255, 0.06);
+  transition: all 0.3s ease;
+}
+
+.shadow-pop-colored:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 25px -5px rgba(0, 52, 127, 0.3), 
+              0 10px 10px -5px rgba(0, 135, 255, 0.2);
+}
+
+.link {
+  @apply text-primary hover:text-secondary;
+}
+
+/* Navbar scrolling animation */
+.nav-scrolled {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Add a subtle transform origin for logo scaling */
+.nav-scrolled img {
+  transform-origin: left center;
+}
+
+/* Create space for the fixed navbar */
+body {
+  padding-top: calc(var(--top-header-height, 30px) + var(--main-nav-height, 112px));
+}
+
+/* Smooth scrolling for the entire page */
+html {
+  scroll-behavior: smooth;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
+    --background: #ffffff;
     --foreground: #ededed;
   }
 }

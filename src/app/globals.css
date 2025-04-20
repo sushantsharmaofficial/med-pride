@@ -29,7 +29,30 @@
   --font-primary: "Playfair", serif;
   --font-secondary: "Nunito", sans-serif;
   --font-tertiary: "Fira Sans", sans-serif;
+  
+  /* animation */
+  --animate-marquee-duration: 30s linear infinite;
+  --animate-marquee-reverse-duration: 30s linear infinite;
+
  
+
+}
+
+/* Marquee animations */
+@keyframes marquee {
+  to { transform: translateX(-50%); }
+}
+
+@keyframes marquee-reverse {
+  to { transform: translateX(50%); }
+}
+
+.animate-marquee {
+  animation: marquee var(--duration, 30s) linear infinite;
+}
+
+.animate-marquee-reverse {
+  animation: marquee-reverse var(--duration, 30s) linear infinite;
 }
 
 /* Custom Pop-out Shadow Effects */

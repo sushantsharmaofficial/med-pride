@@ -8,3 +8,8 @@ export {
   CardFooter 
 } from './Card';
 
+// Export NotFoundPage component
+export { NotFoundPage } from './404-page-not-found';
+export { PageNotFoundDemo } from './demo';
+export { Loader, FullPageLoader } from './loader';
+

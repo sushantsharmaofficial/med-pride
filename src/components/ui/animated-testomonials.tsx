@@ -42,9 +42,8 @@ export default function AnimatedTestimonials({
     }
   }, [autoplay]);
 
-  const randomRotateY = () => {
-    return Math.floor(Math.random() * 21) - 10;
-  };
+  // Fixed rotation values instead of random ones
+  const rotationValues = [5, -8, 3, -5, 7];
 
   return (
     <div className="mx-auto max-w-sm px-4 py-12 font-primary antialiased md:max-w-4xl md:px-8 lg:px-12">
@@ -67,13 +66,15 @@ export default function AnimatedTestimonials({
                     opacity: 0,
                     scale: 0.9,
                     z: -100,
-                    rotate: randomRotateY(),
+                    rotate: rotationValues[index % rotationValues.length],
                   }}
                   animate={{
                     opacity: isActive(index) ? 1 : 0.7,
                     scale: isActive(index) ? 1 : 0.95,
                     z: isActive(index) ? 0 : -100,
-                    rotate: isActive(index) ? 0 : randomRotateY(),
+                    rotate: isActive(index)
+                      ? 0
+                      : rotationValues[index % rotationValues.length],
                     zIndex: isActive(index)
                       ? 40
                       : testimonials.length + 2 - index,
@@ -83,7 +84,7 @@ export default function AnimatedTestimonials({
                     opacity: 0,
                     scale: 0.9,
                     z: 100,
-                    rotate: randomRotateY(),
+                    rotate: rotationValues[index % rotationValues.length],
                   }}
                   transition={{
                     duration: 0.4,

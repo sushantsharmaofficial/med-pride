@@ -4,10 +4,12 @@ import Link from "next/link";
 import React, { useState, useEffect } from "react";
 import TopHeader from "./top-header/topHeader";
 import Image from "next/image";
-import { ArrowRight, Heart, Search } from "lucide-react";
+import { ArrowRight, ChevronDown, Heart, Search } from "lucide-react";
+import ProductsDropdown from "./ProductsDropdown";
 
 export default function MainNavbar() {
   const [scrolled, setScrolled] = useState(false);
+  const [productsHovered, setProductsHovered] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -69,12 +71,23 @@ export default function MainNavbar() {
               </Link>
             </div>
             <div className="flex items-center gap-8 lg:gap-16">
-              <Link
-                href="/products"
-                className="link font-fira-sans transition-all duration-300"
+              <div
+                className="relative"
+                onMouseEnter={() => setProductsHovered(true)}
+                onMouseLeave={() => setProductsHovered(false)}
               >
-                Products
-              </Link>
+                <div className="flex items-center cursor-pointer link font-fira-sans transition-all duration-300">
+                  <span>Products</span>
+                  <ChevronDown
+                    className={`ml-1 h-4 w-4 transition-transform duration-300 ${
+                      productsHovered ? "rotate-180" : ""
+                    }`}
+                  />
+                </div>
+
+                <ProductsDropdown isVisible={productsHovered} />
+              </div>
+
               <Link
                 href="/catalog"
                 className="link font-fira-sans transition-all duration-300"

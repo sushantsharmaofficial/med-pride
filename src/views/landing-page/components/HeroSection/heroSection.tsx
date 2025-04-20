@@ -7,7 +7,7 @@ export default function HeroSection() {
   return (
     <div className="relative w-full h-[calc(100vh-100px)] overflow-hidden">
       {/* Full screen background image */}
-      <div className="absolute inset-0 w-full h-full">
+      <div className="absolute inset-0 w-full md:ml-36 h-full">
         <Image
           src={heroImage}
           alt="Medical background"
@@ -22,7 +22,7 @@ export default function HeroSection() {
           className="absolute inset-0 z-10 pointer-events-none"
           style={{
             background:
-              "linear-gradient(to right, rgba(255,255,255,1) 0%, rgba(255,255,255,0.98) 15%, rgba(255,255,255,0.95) 25%, rgba(255,255,255,0.85) 40%, rgba(255,255,255,0.7) 50%, rgba(255,255,255,0.3) 75%, transparent 100%)",
+              "linear-gradient(to right, rgba(255,255,255,1) 0%, rgba(255,255,255,0.98) 15%, rgba(255,255,255,0.95) 25%, rgba(255,255,255,0.85) 40%, rgba(255,255,255,0.5) 55%, rgba(255,255,255,0) 70%)",
           }}
         ></div>
       </div>

@@ -42,7 +42,7 @@ export default function Testimonials() {
   return (
     <section className="bg-gradient-to-b from-white to-blue-50 py-16 md:py-24">
       <div className="container mx-auto px-4 md:px-8 lg:px-16 xl:px-24">
-        <AnimatedTestimonials testimonials={testimonials} autoplay={true} />
+        <AnimatedTestimonials testimonials={testimonials} autoplay={false} />
       </div>
     </section>
   );

@@ -145,7 +145,7 @@ export default function CatalogPage() {
     <div className="min-h-screen bg-gray-50">
       {/* Hero section with title and search */}
       <section className="bg-gradient-to-b from-white to-blue-50 py-16 border-b border-gray-200">
-        <div className="container mx-auto px-4">
+        <div className="container max-w-7xl md:px-6 mx-auto px-4">
           <div className="flex flex-col items-center justify-center text-center max-w-3xl mx-auto">
             <TextAnimation
               text="Medical Equipment Catalog"

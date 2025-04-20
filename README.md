@@ -1,3 +1,116 @@
+# Med-Eqip Frontend
+
+A modern medical equipment e-commerce platform built with Next.js.
+
+## Component Documentation
+
+### ProductFilter Component
+
+The `ProductFilter` component is a reusable filter sidebar/drawer component that can be used across multiple pages to provide consistent filtering functionality.
+
+#### Features
+
+- Responsive design with mobile and desktop variants
+- Sticky positioning for desktop sidebar
+- Animated filter groups with expand/collapse
+- Support for multiple filter types (categories, brands, price ranges)
+- Show/hide functionality for long filter lists
+- Applied filter tags with easy removal
+- Badge counter for active filters on mobile
+- Consistent styling and theming
+
+#### File Location
+
+```
+src/components/atom/ProductFilter.tsx
+```
+
+#### Usage
+
+Import the component and its interface:
+
+```tsx
+import ProductFilter, { FilterState } from "@/components/atom/ProductFilter";
+```
+
+Use in your page component:
+
+```tsx
+function YourPage() {
+  const [filters, setFilters] = useState<FilterState>({
+    categories: [],
+    brands: [],
+    priceRanges: [],
+  });
+  const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
+
+  const handleFilterChange = (newFilters: FilterState) => {
+    setFilters(newFilters);
+    // Apply filtering logic here
+  };
+
+  const toggleMobileFilter = () => {
+    setIsMobileFilterOpen(!isMobileFilterOpen);
+  };
+
+  return (
+    <div className="flex">
+      {/* Filter component for both mobile and desktop */}
+      <div className="md:w-1/4">
+        <ProductFilter
+          onFilterChange={handleFilterChange}
+          initialFilters={filters}
+          productCount={productCount}
+          isMobileFilterOpen={isMobileFilterOpen}
+          onToggleMobileFilter={toggleMobileFilter}
+        />
+      </div>
+
+      {/* Your content */}
+      <div className="md:w-3/4">{/* Page content */}</div>
+    </div>
+  );
+}
+```
+
+#### Props
+
+| Prop                   | Type                             | Description                               |
+| ---------------------- | -------------------------------- | ----------------------------------------- |
+| `onFilterChange`       | `(filters: FilterState) => void` | Callback when filters are changed         |
+| `categories`           | `FilterItem[]`                   | Optional array of category objects        |
+| `brands`               | `FilterItem[]`                   | Optional array of brand objects           |
+| `priceRanges`          | `FilterItem[]`                   | Optional array of price range objects     |
+| `initialFilters`       | `FilterState`                    | Initial filter state                      |
+| `productCount`         | `number`                         | Number of products (shown in mobile view) |
+| `isMobileFilterOpen`   | `boolean`                        | Whether mobile filter is open             |
+| `onToggleMobileFilter` | `() => void`                     | Callback to toggle mobile filter          |
+
+#### FilterState Interface
+
+```tsx
+export interface FilterState {
+  categories?: string[];
+  brands?: string[];
+  priceRanges?: string[];
+}
+```
+
+#### FilterItem Interface
+
+```tsx
+interface FilterItem {
+  id: string;
+  name: string;
+  count: number;
+}
+```
+
+## Pages Using ProductFilter
+
+- Product Catalog Page (`src/views/catalog/catalog-page.tsx`)
+- Products Page (`src/views/products/products-page.tsx`)
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started

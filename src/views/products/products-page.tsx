@@ -1,14 +1,13 @@
 "use client";
 
 import React, { useState } from "react";
-import { motion } from "framer-motion";
 import SearchInput from "@/components/atom/SearchInput";
-import SideFilter from "./components/SideFilter";
 import TextAnimation from "@/components/animation/textAnimation/textAnimation";
-import { Filter, X, Heart, Star } from "lucide-react";
+import { Heart, Star } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { CardBody, CardContainer, CardItem } from "@/components/ui/3d-card";
+import ProductFilter, { FilterState } from "@/components/atom/ProductFilter";
 
 // Mock data for products
 const dummyProducts = [
@@ -98,13 +97,6 @@ const dummyProducts = [
     isFeatured: true,
   },
 ];
-
-// Define proper type for filters
-interface FilterState {
-  categories?: string[];
-  brands?: string[];
-  priceRanges?: string[];
-}
 
 // Map category slugs to their respective IDs for filtering
 const categorySlugToId: Record<string, string> = {
@@ -488,52 +480,16 @@ export default function ProductsPage({ params }: ProductsPageProps) {
       ) : (
         // Products grid view
         <section className="container mx-auto px-4 py-12 md:py-16">
-          <div className="flex flex-col md:flex-row gap-8">
-            {/* Mobile filter toggle */}
-            <div className="md:hidden flex justify-between items-center mb-6">
-              <button
-                onClick={toggleMobileFilter}
-                className="flex items-center gap-2 bg-white px-4 py-3 rounded-xl shadow-sm border border-gray-200 text-primary hover:bg-gray-50 transition-colors"
-              >
-                <Filter className="h-5 w-5 text-secondary" />
-                <span className="font-medium">Filters</span>
-              </button>
-
-              <div className="text-sm font-medium text-gray-600">
-                {filteredProducts.length} products
-              </div>
-            </div>
-
-            {/* Mobile filter panel */}
-            {isMobileFilterOpen && (
-              <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex md:hidden">
-                <motion.div
-                  className="bg-white w-4/5 h-full overflow-y-auto"
-                  initial={{ x: "-100%" }}
-                  animate={{ x: 0 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <div className="p-5 border-b flex items-center justify-between">
-                    <h2 className="font-secondary text-xl font-medium text-primary">
-                      Filters
-                    </h2>
-                    <button
-                      onClick={toggleMobileFilter}
-                      className="text-gray-500 hover:text-gray-700"
-                    >
-                      <X className="h-6 w-6" />
-                    </button>
-                  </div>
-                  <div className="p-5">
-                    <SideFilter onFilterChange={handleFilterChange} />
-                  </div>
-                </motion.div>
-              </div>
-            )}
-
-            {/* Desktop sidebar - always show */}
-            <div className="hidden md:block md:w-1/4">
-              <SideFilter onFilterChange={handleFilterChange} />
+          <div className="flex flex-col md:flex-row gap-8 relative">
+            {/* ProductFilter component for both mobile and desktop */}
+            <div className="md:w-1/4">
+              <ProductFilter
+                onFilterChange={handleFilterChange}
+                initialFilters={selectedFilters}
+                productCount={filteredProducts.length}
+                isMobileFilterOpen={isMobileFilterOpen}
+                onToggleMobileFilter={toggleMobileFilter}
+              />
             </div>
 
             {/* Products grid */}

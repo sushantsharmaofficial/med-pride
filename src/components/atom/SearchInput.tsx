@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { Search, X } from "lucide-react";
-import { motion } from "motion/react";
+import { motion } from "framer-motion";
 
 interface SearchInputProps {
   placeholder?: string;

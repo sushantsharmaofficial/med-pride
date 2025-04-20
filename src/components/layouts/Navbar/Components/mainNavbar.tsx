@@ -2,10 +2,10 @@
 
 import Link from "next/link";
 import React, { useState, useEffect } from "react";
-import TopHeader from "./top-header/topHeader";
+import TopHeader from "./topHeader";
 import Image from "next/image";
 import { ArrowRight, ChevronDown, Heart, Search } from "lucide-react";
-import ProductsDropdown from "./ProductsDropdown";
+import ProductsDropdown from "../ProductsDropdown";
 
 export default function MainNavbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -77,7 +77,7 @@ export default function MainNavbar() {
                 onMouseLeave={() => setProductsHovered(false)}
               >
                 <div className="flex items-center cursor-pointer link font-fira-sans transition-all duration-300">
-                  <span>Products</span>
+                  <Link href="/products">Products</Link>
                   <ChevronDown
                     className={`ml-1 h-4 w-4 transition-transform duration-300 ${
                       productsHovered ? "rotate-180" : ""

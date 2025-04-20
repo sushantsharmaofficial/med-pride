@@ -23,17 +23,20 @@ const brandSlugToName: Record<string, string> = {
   "carl-zeiss": "Carl Zeiss",
 };
 
-type Props = {
-  params: {
+type PageProps = {
+  params: Promise<{
     slug?: string[];
-  };
+  }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
 // Generate dynamic metadata based on the route params
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  // Await the params before accessing its properties
+export async function generateMetadata({
+  params,
+}: PageProps): Promise<Metadata> {
+  // Get slug parameters
   const resolvedParams = await params;
-  const slugParams = resolvedParams?.slug ?? [];
+  const slugParams = resolvedParams.slug ?? [];
 
   // Base title and description
   let title = "Medical Equipment | MediPride";
@@ -75,15 +78,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default async function ProductsPageWrapper({
-  params,
-}: {
-  params: { slug?: string[] };
-}) {
-  // Await the params before using them
+export default async function ProductsPageWrapper({ params }: PageProps) {
+  // Extract slug after awaiting
   const resolvedParams = await params;
-
-  // Extract slug directly
   const slugParams = {
     slug: resolvedParams.slug || [],
   };

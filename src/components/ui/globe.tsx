@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef, useState, useMemo } from "react";
-import { Color, Scene, Fog, PerspectiveCamera, Vector3, Object3D } from "three";
+import { Color, Vector3, Object3D } from "three";
 import ThreeGlobe from "three-globe";
 import { useThree, Canvas, extend } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
@@ -17,7 +17,6 @@ extend({ ThreeGlobe: ThreeGlobe });
 
 const RING_PROPAGATION_SPEED = 3;
 const aspect = 1.2;
-const cameraZ = 300;
 
 type Position = {
   order: number;
@@ -95,10 +94,14 @@ export function Globe({ globeConfig, data }: WorldProps) {
 
   // Initialize globe only once
   useEffect(() => {
-    if (!globeRef.current && groupRef.current) {
+    let globe: ThreeGlobe | null = null;
+    const currentGroupRef = groupRef.current; // Store ref in variable for cleanup
+
+    if (!globeRef.current && currentGroupRef) {
       try {
-        globeRef.current = new ThreeGlobe();
-        (groupRef.current as Object3D).add(
+        globe = new ThreeGlobe();
+        globeRef.current = globe;
+        (currentGroupRef as Object3D).add(
           globeRef.current as unknown as Object3D
         );
         setIsInitialized(true);
@@ -109,9 +112,9 @@ export function Globe({ globeConfig, data }: WorldProps) {
 
     // Clean up on unmount
     return () => {
-      if (globeRef.current && groupRef.current) {
+      if (globe && currentGroupRef) {
         try {
-          groupRef.current.remove(globeRef.current as unknown as Object3D);
+          currentGroupRef.remove(globe as unknown as Object3D);
           globeRef.current = null;
         } catch (error) {
           console.error("Error cleaning up globe:", error);
@@ -191,25 +194,25 @@ export function Globe({ globeConfig, data }: WorldProps) {
         .atmosphereAltitude(defaultProps.atmosphereAltitude)
         .hexPolygonColor(() => defaultProps.polygonColor);
 
-      // Fixed type error with proper typing for arc data
+      // Fix type errors by properly casting data objects
       globeRef.current
         .arcsData(data)
-        .arcStartLat((d: Position) => d.startLat * 1)
-        .arcStartLng((d: Position) => d.startLng * 1)
-        .arcEndLat((d: Position) => d.endLat * 1)
-        .arcEndLng((d: Position) => d.endLng * 1)
-        .arcColor((e: Position) => e.color)
-        .arcAltitude((e: Position) => e.arcAlt * 1)
+        .arcStartLat((d: object) => (d as unknown as Position).startLat * 1)
+        .arcStartLng((d: object) => (d as unknown as Position).startLng * 1)
+        .arcEndLat((d: object) => (d as unknown as Position).endLat * 1)
+        .arcEndLng((d: object) => (d as unknown as Position).endLng * 1)
+        .arcColor((e: object) => (e as unknown as Position).color)
+        .arcAltitude((e: object) => (e as unknown as Position).arcAlt * 1)
         .arcStroke(() => [0.32, 0.28, 0.3][Math.round(Math.random() * 2)])
         .arcDashLength(defaultProps.arcLength)
-        .arcDashInitialGap((e: Position) => e.order * 1)
+        .arcDashInitialGap((e: object) => (e as unknown as Position).order * 1)
         .arcDashGap(15)
         .arcDashAnimateTime(() => defaultProps.arcTime);
 
-      // Set points data with fixed type annotation
+      // Set points data with fixed type cast
       globeRef.current
         .pointsData(filteredPoints)
-        .pointColor((e: PointData) => e.color)
+        .pointColor((e: object) => (e as unknown as PointData).color)
         .pointsMerge(true)
         .pointAltitude(0.0)
         .pointRadius(2);
@@ -248,121 +251,111 @@ export function Globe({ globeConfig, data }: WorldProps) {
       if (!globeRef.current) return;
 
       try {
-        const newNumbersOfRings = genRandomNumbers(
-          0,
-          data.length,
-          Math.floor((data.length * 4) / 5)
-        );
+        const rings = [];
+        const numRings = defaultProps.rings || 1;
 
-        const ringsData = data
-          .filter((d, i) => newNumbersOfRings.includes(i))
-          .map((d) => ({
-            lat: d.startLat,
-            lng: d.startLng,
-            color: d.color,
-          }));
+        for (let i = 0; i < numRings; i++) {
+          const alt = Math.random() * 0.1;
+          const lat = Math.random() * 180 - 90;
+          const lng = Math.random() * 360 - 180;
 
-        globeRef.current.ringsData(ringsData);
+          rings.push({
+            lat,
+            lng,
+            altitude: alt,
+            color: ["#61DAFB", "#FB61DA", "#DAFB61", "#61FBCF"][
+              Math.round(Math.random() * 3)
+            ],
+          });
+        }
+
+        globeRef.current.ringsData(rings);
       } catch (error) {
         console.error("Error updating rings:", error);
       }
-    }, 2000);
+    }, defaultProps.arcTime / 3);
 
-    return () => {
-      clearInterval(interval);
-    };
-  }, [isInitialized, data]);
+    return () => clearInterval(interval);
+  }, [
+    isInitialized,
+    data,
+    defaultProps.arcLength,
+    defaultProps.arcTime,
+    defaultProps.rings,
+  ]);
 
-  return <group ref={groupRef} />;
+  return (
+    <group ref={groupRef} rotation={[0, 0, 0]}>
+      {/* Globe is initialized imperatively */}
+    </group>
+  );
 }
 
 function WebGLRendererConfig() {
-  const { gl, size } = useThree();
+  const { gl } = useThree();
 
   useEffect(() => {
-    // Configure renderer for better performance
-    gl.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Limit pixel ratio for performance
-    gl.setSize(size.width, size.height);
-    gl.setClearColor(0x000000, 0); // Use transparent background
-  }, [gl, size]);
+    gl.setPixelRatio(window.devicePixelRatio);
+    gl.setClearColor(0xffffff, 0);
+  }, [gl]);
 
   return null;
 }
 
 export function World(props: WorldProps) {
-  const { globeConfig } = props;
+  const initialCameraPosition = useMemo(
+    () => [
+      ((props.globeConfig.initialPosition?.lng ?? 0) * Math.PI) / 180, // Convert to radians for THREE.js
+      ((props.globeConfig.initialPosition?.lat ?? 0) * Math.PI) / 180,
+      300, // Initial distance - increased from 200 to 300
+    ],
+    [
+      props.globeConfig.initialPosition?.lat,
+      props.globeConfig.initialPosition?.lng,
+    ]
+  );
 
-  // Create scene with useMemo to prevent unnecessary re-renders
-  const scene = useMemo(() => {
-    const newScene = new Scene();
-    newScene.fog = new Fog(0xffffff, 400, 2000);
-    return newScene;
-  }, []);
+  const cameraPositionVector = useMemo(() => {
+    const phi = initialCameraPosition[0];
+    const theta = initialCameraPosition[1];
+    const r = initialCameraPosition[2];
+
+    const x = r * Math.sin(theta) * Math.sin(phi);
+    const y = r * Math.cos(theta);
+    const z = r * Math.sin(theta) * Math.cos(phi);
+
+    return new Vector3(x, y, z);
+  }, [initialCameraPosition]);
 
   return (
     <Canvas
-      scene={scene}
-      camera={new PerspectiveCamera(50, aspect, 180, 1800)}
-      style={{ width: "100%", height: "100%" }} // Ensure canvas fills container
-      frameloop="demand" // Only render when needed for performance
+      style={{ width: "100%", height: "100%", background: "transparent" }}
+      camera={{
+        fov: 40, // Reduced from 45 to 40 for a more zoomed out view
+        aspect: aspect,
+        near: 0.1,
+        far: 2000, // Increased from 1000 to 2000
+        position: cameraPositionVector,
+      }}
+      dpr={typeof window !== "undefined" ? window.devicePixelRatio : 1}
     >
-      <WebGLRendererConfig />
-      <ambientLight color={globeConfig.ambientLight} intensity={0.6} />
-      <directionalLight
-        color={globeConfig.directionalLeftLight}
-        position={new Vector3(-400, 100, 400)}
-        intensity={0.8}
-        castShadow
+      <ambientLight intensity={props.globeConfig.ambientLight ? 1 : 0.2} />
+      <spotLight
+        intensity={props.globeConfig.directionalLeftLight ? 1 : 0.1}
+        angle={0.4}
+        penumbra={1}
+        position={[600, 200, 20]}
       />
-      <directionalLight
-        color={globeConfig.directionalTopLight}
-        position={new Vector3(-200, 500, 200)}
-        intensity={0.8}
-      />
-      <pointLight
-        color={globeConfig.pointLight}
-        position={new Vector3(-200, 500, 200)}
-        intensity={0.8}
-      />
-      <Globe {...props} />
       <OrbitControls
         enablePan={false}
         enableZoom={false}
-        minDistance={cameraZ}
-        maxDistance={cameraZ}
-        autoRotateSpeed={globeConfig.autoRotateSpeed || 1}
-        autoRotate={
-          globeConfig.autoRotate !== undefined ? globeConfig.autoRotate : true
-        }
-        minPolarAngle={Math.PI / 3.5}
-        maxPolarAngle={Math.PI - Math.PI / 3}
+        minDistance={200} // Increased from 120 to 200
+        maxDistance={800} // Increased from 500 to 800
+        autoRotate={props.globeConfig.autoRotate}
+        autoRotateSpeed={props.globeConfig.autoRotateSpeed || 0.5}
       />
+      <Globe {...props} />
+      <WebGLRendererConfig />
     </Canvas>
   );
-}
-
-function hexToRgb(hex: string) {
-  const shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
-  hex = hex.replace(shorthandRegex, function (m, r, g, b) {
-    return r + r + g + g + b + b;
-  });
-
-  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-  return result
-    ? {
-        r: parseInt(result[1], 16),
-        g: parseInt(result[2], 16),
-        b: parseInt(result[3], 16),
-      }
-    : null;
-}
-
-function genRandomNumbers(min: number, max: number, count: number) {
-  const arr = [];
-  while (arr.length < count) {
-    const r = Math.floor(Math.random() * (max - min)) + min;
-    if (arr.indexOf(r) === -1) arr.push(r);
-  }
-
-  return arr;
 }

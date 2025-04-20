@@ -31,12 +31,12 @@ export default function ShowCaseSection() {
       <div className="container mx-auto max-w-7xl px-4 md:px-6 py-24">
         <div className="flex flex-col md:flex-row items-center justify-between">
           {/* Cards on left side */}
-          <div className="w-full md:w-1/2 flex justify-center md:justify-start">
+          <div className="w-full md:w-1/2  flex justify-center md:justify-start">
             <FocusCards cards={cards} />
           </div>
 
           {/* Text content on right side */}
-          <div className="w-full md:w-1/2 mt-16 md:mt-0 flex flex-col items-center md:items-start justify-center text-center md:text-left">
+          <div className="w-full md:w-1/2 mt-16 md:mt-0 flex flex-col items-center md:items-start justify-end  text-center md:text-left">
             <TextAnimation
               text="Featured Products"
               type="fadeIn"

@@ -1,29 +1,61 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import dynamic from "next/dynamic";
 import TextAnimation from "@/components/animation/textAnimation/textAnimation";
+import { Loader } from "@/components/ui";
 
-// Import the World component with no SSR
-const World = dynamic(
-  () => import("@/components/ui/globe").then((m) => m.World),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="flex items-center justify-center h-72 md:h-full">
-        <div className="animate-pulse text-center">
-          <div className="w-24 h-24 rounded-full bg-gray-200 mx-auto mb-4"></div>
-          <p className="text-gray-500">Loading globe...</p>
+// Loading component for better visual feedback
+function GlobeLoading() {
+  return (
+    <div className="flex items-center justify-center h-full w-full">
+      <div className="relative animate-pulse">
+        <div className="w-64 h-64 rounded-full border-8 border-blue-200 dark:border-blue-900"></div>
+        <div className="absolute inset-0 flex items-center justify-center text-primary dark:text-white">
+          <div className="text-center">
+            <div className="w-16 h-16 rounded-full bg-blue-100 dark:bg-blue-800 mx-auto mb-4 animate-ping"></div>
+            <p className="text-sm font-medium">
+              Loading globe visualization...
+            </p>
+          </div>
         </div>
       </div>
-    ),
+    </div>
+  );
+}
+
+// Fallback component for loading errors
+function GlobeError() {
+  return <Loader />;
+}
+
+// Import the World component with no SSR and better error handling
+const World = dynamic(
+  () =>
+    import("@/components/ui/globe")
+      .then((m) => m.World)
+      .catch((error) => {
+        console.error("Failed to load Globe component:", error);
+        return GlobeError;
+      }),
+  {
+    ssr: false,
+    loading: () => <GlobeLoading />,
   }
 );
 
 export default function WeExportWorldwide() {
   const [isClient, setIsClient] = useState(false);
+  const [isGlobeReady, setIsGlobeReady] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
+
+    // Delay showing the globe to ensure smoother rendering
+    const timer = setTimeout(() => {
+      setIsGlobeReady(true);
+    }, 500);
+
+    return () => clearTimeout(timer);
   }, []);
 
   const globeConfig = {
@@ -48,17 +80,11 @@ export default function WeExportWorldwide() {
     autoRotate: true,
     autoRotateSpeed: 0.5,
   };
+
   const colors = ["#00347f", "#0087ff", "#3B82F6"];
+
+  // Simplified arcs data for better performance
   const sampleArcs = [
-    {
-      order: 1,
-      startLat: -19.885592,
-      startLng: -43.951191,
-      endLat: -22.9068,
-      endLng: -43.1729,
-      arcAlt: 0.1,
-      color: colors[Math.floor(Math.random() * (colors.length - 1))],
-    },
     {
       order: 1,
       startLat: 28.6139,
@@ -66,16 +92,7 @@ export default function WeExportWorldwide() {
       endLat: 3.139,
       endLng: 101.6869,
       arcAlt: 0.2,
-      color: colors[Math.floor(Math.random() * (colors.length - 1))],
-    },
-    {
-      order: 1,
-      startLat: -19.885592,
-      startLng: -43.951191,
-      endLat: -1.303396,
-      endLng: 36.852443,
-      arcAlt: 0.5,
-      color: colors[Math.floor(Math.random() * (colors.length - 1))],
+      color: colors[1],
     },
     {
       order: 2,
@@ -84,25 +101,7 @@ export default function WeExportWorldwide() {
       endLat: 35.6762,
       endLng: 139.6503,
       arcAlt: 0.2,
-      color: colors[Math.floor(Math.random() * (colors.length - 1))],
-    },
-    {
-      order: 2,
-      startLat: 51.5072,
-      startLng: -0.1276,
-      endLat: 3.139,
-      endLng: 101.6869,
-      arcAlt: 0.3,
-      color: colors[Math.floor(Math.random() * (colors.length - 1))],
-    },
-    {
-      order: 2,
-      startLat: -15.785493,
-      startLng: -47.909029,
-      endLat: 36.162809,
-      endLng: -115.119411,
-      arcAlt: 0.3,
-      color: colors[Math.floor(Math.random() * (colors.length - 1))],
+      color: colors[0],
     },
     {
       order: 3,
@@ -111,43 +110,7 @@ export default function WeExportWorldwide() {
       endLat: 22.3193,
       endLng: 114.1694,
       arcAlt: 0.3,
-      color: colors[Math.floor(Math.random() * (colors.length - 1))],
-    },
-    {
-      order: 3,
-      startLat: 21.3099,
-      startLng: -157.8581,
-      endLat: 40.7128,
-      endLng: -74.006,
-      arcAlt: 0.3,
-      color: colors[Math.floor(Math.random() * (colors.length - 1))],
-    },
-    {
-      order: 3,
-      startLat: -6.2088,
-      startLng: 106.8456,
-      endLat: 51.5072,
-      endLng: -0.1276,
-      arcAlt: 0.3,
-      color: colors[Math.floor(Math.random() * (colors.length - 1))],
-    },
-    {
-      order: 4,
-      startLat: 11.986597,
-      startLng: 8.571831,
-      endLat: -15.595412,
-      endLng: -56.05918,
-      arcAlt: 0.5,
-      color: colors[Math.floor(Math.random() * (colors.length - 1))],
-    },
-    {
-      order: 4,
-      startLat: -34.6037,
-      startLng: -58.3816,
-      endLat: 22.3193,
-      endLng: 114.1694,
-      arcAlt: 0.7,
-      color: colors[Math.floor(Math.random() * (colors.length - 1))],
+      color: colors[2],
     },
     {
       order: 4,
@@ -156,7 +119,7 @@ export default function WeExportWorldwide() {
       endLat: 48.8566,
       endLng: -2.3522,
       arcAlt: 0.1,
-      color: colors[Math.floor(Math.random() * (colors.length - 1))],
+      color: colors[0],
     },
     {
       order: 5,
@@ -165,43 +128,7 @@ export default function WeExportWorldwide() {
       endLat: 51.5072,
       endLng: -0.1276,
       arcAlt: 0.3,
-      color: colors[Math.floor(Math.random() * (colors.length - 1))],
-    },
-    {
-      order: 5,
-      startLat: 1.3521,
-      startLng: 103.8198,
-      endLat: -33.8688,
-      endLng: 151.2093,
-      arcAlt: 0.2,
-      color: colors[Math.floor(Math.random() * (colors.length - 1))],
-    },
-    {
-      order: 5,
-      startLat: 34.0522,
-      startLng: -118.2437,
-      endLat: 48.8566,
-      endLng: -2.3522,
-      arcAlt: 0.2,
-      color: colors[Math.floor(Math.random() * (colors.length - 1))],
-    },
-    {
-      order: 6,
-      startLat: -15.432563,
-      startLng: 28.315853,
-      endLat: 1.094136,
-      endLng: -63.34546,
-      arcAlt: 0.7,
-      color: colors[Math.floor(Math.random() * (colors.length - 1))],
-    },
-    {
-      order: 6,
-      startLat: 37.5665,
-      startLng: 126.978,
-      endLat: 35.6762,
-      endLng: 139.6503,
-      arcAlt: 0.1,
-      color: colors[Math.floor(Math.random() * (colors.length - 1))],
+      color: colors[1],
     },
     {
       order: 6,
@@ -210,16 +137,7 @@ export default function WeExportWorldwide() {
       endLat: 51.5072,
       endLng: -0.1276,
       arcAlt: 0.3,
-      color: colors[Math.floor(Math.random() * (colors.length - 1))],
-    },
-    {
-      order: 7,
-      startLat: -19.885592,
-      startLng: -43.951191,
-      endLat: -15.595412,
-      endLng: -56.05918,
-      arcAlt: 0.1,
-      color: colors[Math.floor(Math.random() * (colors.length - 1))],
+      color: colors[2],
     },
     {
       order: 7,
@@ -228,192 +146,21 @@ export default function WeExportWorldwide() {
       endLat: 52.52,
       endLng: 13.405,
       arcAlt: 0.1,
-      color: colors[Math.floor(Math.random() * (colors.length - 1))],
-    },
-    {
-      order: 7,
-      startLat: 52.52,
-      startLng: 13.405,
-      endLat: 34.0522,
-      endLng: -118.2437,
-      arcAlt: 0.2,
-      color: colors[Math.floor(Math.random() * (colors.length - 1))],
+      color: colors[0],
     },
     {
       order: 8,
-      startLat: -8.833221,
-      startLng: 13.264837,
-      endLat: -33.936138,
-      endLng: 18.436529,
-      arcAlt: 0.2,
-      color: colors[Math.floor(Math.random() * (colors.length - 1))],
-    },
-    {
-      order: 8,
-      startLat: 49.2827,
-      startLng: -123.1207,
+      startLat: 40.7128,
+      startLng: -74.006,
       endLat: 52.3676,
       endLng: 4.9041,
       arcAlt: 0.2,
-      color: colors[Math.floor(Math.random() * (colors.length - 1))],
-    },
-    {
-      order: 8,
-      startLat: 1.3521,
-      startLng: 103.8198,
-      endLat: 40.7128,
-      endLng: -74.006,
-      arcAlt: 0.5,
-      color: colors[Math.floor(Math.random() * (colors.length - 1))],
-    },
-    {
-      order: 9,
-      startLat: 51.5072,
-      startLng: -0.1276,
-      endLat: 34.0522,
-      endLng: -118.2437,
-      arcAlt: 0.2,
-      color: colors[Math.floor(Math.random() * (colors.length - 1))],
-    },
-    {
-      order: 9,
-      startLat: 22.3193,
-      startLng: 114.1694,
-      endLat: -22.9068,
-      endLng: -43.1729,
-      arcAlt: 0.7,
-      color: colors[Math.floor(Math.random() * (colors.length - 1))],
-    },
-    {
-      order: 9,
-      startLat: 1.3521,
-      startLng: 103.8198,
-      endLat: -34.6037,
-      endLng: -58.3816,
-      arcAlt: 0.5,
-      color: colors[Math.floor(Math.random() * (colors.length - 1))],
-    },
-    {
-      order: 10,
-      startLat: -22.9068,
-      startLng: -43.1729,
-      endLat: 28.6139,
-      endLng: 77.209,
-      arcAlt: 0.7,
-      color: colors[Math.floor(Math.random() * (colors.length - 1))],
-    },
-    {
-      order: 10,
-      startLat: 34.0522,
-      startLng: -118.2437,
-      endLat: 31.2304,
-      endLng: 121.4737,
-      arcAlt: 0.3,
-      color: colors[Math.floor(Math.random() * (colors.length - 1))],
-    },
-    {
-      order: 10,
-      startLat: -6.2088,
-      startLng: 106.8456,
-      endLat: 52.3676,
-      endLng: 4.9041,
-      arcAlt: 0.3,
-      color: colors[Math.floor(Math.random() * (colors.length - 1))],
-    },
-    {
-      order: 11,
-      startLat: 41.9028,
-      startLng: 12.4964,
-      endLat: 34.0522,
-      endLng: -118.2437,
-      arcAlt: 0.2,
-      color: colors[Math.floor(Math.random() * (colors.length - 1))],
-    },
-    {
-      order: 11,
-      startLat: -6.2088,
-      startLng: 106.8456,
-      endLat: 31.2304,
-      endLng: 121.4737,
-      arcAlt: 0.2,
-      color: colors[Math.floor(Math.random() * (colors.length - 1))],
-    },
-    {
-      order: 11,
-      startLat: 22.3193,
-      startLng: 114.1694,
-      endLat: 1.3521,
-      endLng: 103.8198,
-      arcAlt: 0.2,
-      color: colors[Math.floor(Math.random() * (colors.length - 1))],
-    },
-    {
-      order: 12,
-      startLat: 34.0522,
-      startLng: -118.2437,
-      endLat: 37.7749,
-      endLng: -122.4194,
-      arcAlt: 0.1,
-      color: colors[Math.floor(Math.random() * (colors.length - 1))],
-    },
-    {
-      order: 12,
-      startLat: 35.6762,
-      startLng: 139.6503,
-      endLat: 22.3193,
-      endLng: 114.1694,
-      arcAlt: 0.2,
-      color: colors[Math.floor(Math.random() * (colors.length - 1))],
-    },
-    {
-      order: 12,
-      startLat: 22.3193,
-      startLng: 114.1694,
-      endLat: 34.0522,
-      endLng: -118.2437,
-      arcAlt: 0.3,
-      color: colors[Math.floor(Math.random() * (colors.length - 1))],
-    },
-    {
-      order: 13,
-      startLat: 52.52,
-      startLng: 13.405,
-      endLat: 22.3193,
-      endLng: 114.1694,
-      arcAlt: 0.3,
-      color: colors[Math.floor(Math.random() * (colors.length - 1))],
-    },
-    {
-      order: 13,
-      startLat: 11.986597,
-      startLng: 8.571831,
-      endLat: 35.6762,
-      endLng: 139.6503,
-      arcAlt: 0.3,
-      color: colors[Math.floor(Math.random() * (colors.length - 1))],
-    },
-    {
-      order: 13,
-      startLat: -22.9068,
-      startLng: -43.1729,
-      endLat: -34.6037,
-      endLng: -58.3816,
-      arcAlt: 0.1,
-      color: colors[Math.floor(Math.random() * (colors.length - 1))],
-    },
-    {
-      order: 14,
-      startLat: -33.936138,
-      startLng: 18.436529,
-      endLat: 21.395643,
-      endLng: 39.883798,
-      arcAlt: 0.3,
-      color: colors[Math.floor(Math.random() * (colors.length - 1))],
+      color: colors[1],
     },
   ];
 
   return (
-    <div className="flex flex-row items-center justify-center py-20 h-screen md:h-[90vh] relative w-full bg-gradient-to-r from-white to-blue-50 dark:from-black dark:to-blue-950">
+    <div className="flex flex-row items-center justify-center py-20 h-screen md:h-[80vh] relative w-full bg-gradient-to-r from-white to-blue-50 dark:from-black dark:to-blue-950">
       <div className="max-w-7xl mx-auto w-full relative overflow-hidden h-full px-4">
         <div className="flex flex-col-reverse lg:flex-row h-full items-center">
           {/* Text content on left */}
@@ -431,7 +178,7 @@ export default function WeExportWorldwide() {
                 type="slideUp"
                 delay={0.4}
                 duration={0.7}
-                className="text-4xl w-full sm:text-5xl lg:text-[70px]  font-secondary leading-tight font-light text-black dark:text-white block"
+                className="text-4xl w-full sm:text-5xl lg:text-[70px] font-secondary leading-tight font-light text-black dark:text-white block whitespace-nowrap overflow-hidden"
               />
 
               <TextAnimation
@@ -466,12 +213,15 @@ export default function WeExportWorldwide() {
             </div>
           </div>
 
-          {/* Globe on right */}
+          {/* Globe on right with better loading handling */}
           <div className="w-full lg:w-1/2 h-full relative">
             <div className="absolute w-full h-full">
-              {isClient && (
-                <World data={sampleArcs} globeConfig={globeConfig} />
-              )}
+              <Suspense fallback={<GlobeLoading />}>
+                {isClient && isGlobeReady && (
+                  <World data={sampleArcs} globeConfig={globeConfig} />
+                )}
+                {isClient && !isGlobeReady && <GlobeLoading />}
+              </Suspense>
             </div>
           </div>
         </div>

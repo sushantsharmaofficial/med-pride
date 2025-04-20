@@ -48,7 +48,7 @@ const people = [
 
 export default function OurExperts() {
   return (
-    <section className="bg-gradient-to-b from-white to-gray-300 py-24">
+    <section className="bg-white py-24">
       <div className="container mx-auto max-w-7xl px-4 md:px-6">
         <div className="text-center mb-12">
           <h2 className="text-3xl font-primary text-primary font-bold">

@@ -7,6 +7,7 @@ import BestSellingProducts from "./components/bestSellingProducts/bestSellingPro
 import PartnerSection from "./components/partnerSection/partnerSection";
 import OurExperts from "./components/OurExperts/ourExperts";
 import WeExportWorldwide from "./components/WeExportWorldwide/weExport";
+import Testimonials from "./components/Testomonials/Testomonials";
 
 export default function LandingPage() {
   return (
@@ -15,10 +16,11 @@ export default function LandingPage() {
       <CategoryPage />
       <MostSearchedProducts />
       <BestSellingProducts />
-      <ShowcaseSection />
       <PartnerSection />
-      <WeExportWorldwide />
+      <ShowcaseSection />
       <OurExperts />
+      <WeExportWorldwide />
+      <Testimonials />
     </div>
   );
 }

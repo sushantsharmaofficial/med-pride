@@ -160,7 +160,7 @@ export default function WeExportWorldwide() {
   ];
 
   return (
-    <div className="flex flex-row items-center justify-center py-20 h-screen md:h-[80vh] relative w-full bg-gradient-to-r from-white to-blue-50 dark:from-black dark:to-blue-950">
+    <div className="flex flex-row items-center justify-center py-20 h-screen md:h-[90vh] relative w-full bg-gradient-to-r from-white to-blue-50 dark:from-black dark:to-blue-950">
       <div className="max-w-7xl mx-auto w-full relative overflow-hidden h-full px-4">
         <div className="flex flex-col-reverse lg:flex-row h-full items-center">
           {/* Text content on left */}

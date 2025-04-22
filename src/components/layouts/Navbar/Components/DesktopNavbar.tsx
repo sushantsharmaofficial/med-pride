@@ -13,6 +13,11 @@ interface DesktopNavbarProps {
 export default function DesktopNavbar({ scrolled }: DesktopNavbarProps) {
   const [productsHovered, setProductsHovered] = useState(false);
 
+  // Handler to close dropdown when an option is clicked
+  const handleProductOptionClick = () => {
+    setProductsHovered(false);
+  };
+
   return (
     <div
       className={`
@@ -59,7 +64,10 @@ export default function DesktopNavbar({ scrolled }: DesktopNavbarProps) {
               />
             </div>
 
-            <ProductsDropdown isVisible={productsHovered} />
+            <ProductsDropdown
+              isVisible={productsHovered}
+              onOptionClick={handleProductOptionClick}
+            />
           </div>
 
           <Link
@@ -95,7 +103,7 @@ export default function DesktopNavbar({ scrolled }: DesktopNavbarProps) {
               transition-all duration-300 ease-out
               border-none rounded-3xl  group 
               shadow-pop-sm hover:bg-primary px-5 py-3 text-base"
-             
+              
             `}
           >
             <FileText

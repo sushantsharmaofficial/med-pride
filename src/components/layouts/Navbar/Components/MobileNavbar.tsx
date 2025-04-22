@@ -125,6 +125,17 @@ export default function MobileNavbar({ scrolled }: MobileNavbarProps) {
     };
   }, []);
 
+  // Handler to close the menu and products dropdown
+  const handleOptionClick = () => {
+    setIsMenuOpen(false);
+    setProductsOpen(false);
+  };
+
+  // Handler for closing only the products dropdown
+  const handleProductOptionClick = () => {
+    setProductsOpen(false);
+  };
+
   const navItems = [
     { name: "Products", href: "/products", hasDropdown: true },
     { name: "Catalog", href: "/catalog", hasDropdown: false },
@@ -300,7 +311,7 @@ export default function MobileNavbar({ scrolled }: MobileNavbarProps) {
                                           <Link
                                             href={`/products/category/${category.slug}`}
                                             className="flex items-center justify-between px-2 py-2 rounded-md hover:bg-gray-50 text-gray-700"
-                                            onClick={() => setIsMenuOpen(false)}
+                                            onClick={handleOptionClick}
                                           >
                                             <span className="text-sm">
                                               {category.name}
@@ -321,7 +332,7 @@ export default function MobileNavbar({ scrolled }: MobileNavbarProps) {
                                           <Link
                                             href={`/products/brand/${brand.slug}`}
                                             className="flex items-center justify-between px-2 py-2 rounded-md hover:bg-gray-50 text-gray-700"
-                                            onClick={() => setIsMenuOpen(false)}
+                                            onClick={handleOptionClick}
                                           >
                                             <span className="text-sm">
                                               {brand.name}
@@ -341,7 +352,7 @@ export default function MobileNavbar({ scrolled }: MobileNavbarProps) {
                                   <Link
                                     href="/products"
                                     className="text-sm text-primary hover:text-secondary font-medium flex items-center"
-                                    onClick={() => setIsMenuOpen(false)}
+                                    onClick={handleProductOptionClick}
                                   >
                                     <span>View All</span>
                                     <ArrowRight className="h-3.5 w-3.5 ml-1" />
@@ -349,7 +360,7 @@ export default function MobileNavbar({ scrolled }: MobileNavbarProps) {
                                   <Link
                                     href="/catalog"
                                     className="text-sm text-primary hover:text-secondary font-medium flex items-center"
-                                    onClick={() => setIsMenuOpen(false)}
+                                    onClick={handleProductOptionClick}
                                   >
                                     <span>Catalog</span>
                                     <ArrowRight className="h-3.5 w-3.5 ml-1" />

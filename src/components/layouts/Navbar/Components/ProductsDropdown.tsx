@@ -79,9 +79,13 @@ const brands = [
 
 interface ProductsDropdownProps {
   isVisible: boolean;
+  onOptionClick?: () => void;
 }
 
-export default function ProductsDropdown({ isVisible }: ProductsDropdownProps) {
+export default function ProductsDropdown({
+  isVisible,
+  onOptionClick,
+}: ProductsDropdownProps) {
   return (
     <AnimatePresence>
       {isVisible && (
@@ -113,6 +117,7 @@ export default function ProductsDropdown({ isVisible }: ProductsDropdownProps) {
                     key={category.id}
                     href={`/products/category/${category.slug}`}
                     className="flex items-center justify-between px-3 py-2 rounded-md hover:bg-gray-50 text-gray-700 hover:text-secondary transition-colors duration-200"
+                    onClick={onOptionClick}
                   >
                     <span className="font-medium text-sm">{category.name}</span>
                     <span className="text-xs px-2 py-1 bg-gray-100 rounded-full text-gray-500">
@@ -134,6 +139,7 @@ export default function ProductsDropdown({ isVisible }: ProductsDropdownProps) {
                     key={brand.id}
                     href={`/products/brand/${brand.slug}`}
                     className="flex items-center justify-between px-3 py-2 rounded-md hover:bg-gray-50 text-gray-700 hover:text-secondary transition-colors duration-200"
+                    onClick={onOptionClick}
                   >
                     <span className="font-medium text-sm">{brand.name}</span>
                     <span className="text-xs px-2 py-1 bg-gray-100 rounded-full text-gray-500">
@@ -149,6 +155,7 @@ export default function ProductsDropdown({ isVisible }: ProductsDropdownProps) {
             <Link
               href="/products"
               className="text-sm text-primary hover:text-secondary font-medium flex items-center transition-colors duration-200"
+              onClick={onOptionClick}
             >
               <span>View All Products</span>
               <ArrowRight className="h-4 w-4 ml-1" />
@@ -157,6 +164,7 @@ export default function ProductsDropdown({ isVisible }: ProductsDropdownProps) {
             <Link
               href="/catalog"
               className="text-sm text-primary hover:text-secondary font-medium flex items-center transition-colors duration-200"
+              onClick={onOptionClick}
             >
               <span>Browse Catalog</span>
               <ArrowRight className="h-4 w-4 ml-1" />

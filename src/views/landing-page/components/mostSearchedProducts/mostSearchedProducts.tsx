@@ -114,14 +114,14 @@ export default function MostSearchedProducts() {
               text="Our Products"
               type="fadeIn"
               delay={0.2}
-              className="text-base font-primary text-secondary font-bold"
+              className="text-sm md:text-base font-primary text-secondary font-bold"
             />
             <TextAnimation
               text="Explore our most searched products"
               type="slideUp"
               delay={0.4}
               duration={0.7}
-              className="text-4xl sm:text-xl md:text-3xl font-secondary leading-tight font-light text-black block"
+              className="text-xl sm:text-xl md:text-3xl font-secondary leading-tight font-light text-black block"
             />
           </section>
           <div className="flex items-center justify-end">
@@ -145,17 +145,13 @@ export default function MostSearchedProducts() {
         <section className="w-full">
           <div
             ref={sliderRef}
-            className="flex flex-nowrap overflow-x-auto gap-32 pb-8 scrollbar-hide scroll-smooth pl-14"
+            className="flex flex-nowrap overflow-x-auto gap-4 pb-8 scrollbar-hide scroll-smooth"
             style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
           >
             {products.map((product) => (
-              <div
-                key={product.id}
-                className="flex-none"
-                style={{ width: "380px" }}
-              >
+              <div key={product.id} className="flex-none">
                 <CardContainer className="inter-var ">
-                  <CardBody className="bg-white relative group/card border-black/[0.1] w-auto sm:w-[30rem] h-auto rounded-xl p-6 border shadow-pop-sm dark:hover:shadow-secondary/[0.1]">
+                  <CardBody className="bg-white relative group/card border-black/[0.1] w-[20rem] md:min-w-[30rem] h-auto rounded-xl p-6 border shadow-pop-sm dark:hover:shadow-secondary/[0.1]">
                     <div className="mb-4">
                       <span className="inline-block px-3 py-1 bg-gray-100 text-gray-800 text-xs font-medium rounded-full">
                         {product.category}

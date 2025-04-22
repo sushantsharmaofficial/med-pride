@@ -5,33 +5,27 @@ import TextAnimation from "@/components/animation/textAnimation/textAnimation";
 
 export default function HeroSection() {
   return (
-    <div className="relative w-full h-[calc(100vh-100px)] overflow-hidden">
+    <div className="relative w-full h-[80vh] md:h-[calc(100vh-100px)] overflow-hidden">
       {/* Full screen background image */}
-      <div className="absolute inset-0 w-full md:ml-36 h-full">
+      <div className="absolute inset-0 w-full  md:ml-36 h-full">
         <Image
           src={heroImage}
           alt="Medical background"
-          className="object-cover w-full h-full brightness-[0.85] opacity-90"
+          className="object-cover w-full h-full   brightness-[0.85] opacity-90"
           fill
           sizes="100vw"
           priority
           style={{ objectPosition: "right center" }}
         />
         {/* Left-side gradient overlay */}
-        <div
-          className="absolute inset-0 z-10 pointer-events-none"
-          style={{
-            background:
-              "linear-gradient(to right, rgba(255,255,255,1) 0%, rgba(255,255,255,0.98) 15%, rgba(255,255,255,0.95) 25%, rgba(255,255,255,0.85) 40%, rgba(255,255,255,0.5) 55%, rgba(255,255,255,0) 70%)",
-          }}
-        ></div>
+        <div className="absolute inset-0 z-10 pointer-events-none bg-gradient-to-t md:bg-gradient-to-r from-white via-white/35 to-transparent"></div>
       </div>
 
       {/* Content container */}
       <div className="relative z-30 w-full h-full mx-auto max-w-7xl px-4 sm:px-6 py-10 md:py-16 lg:py-20">
-        <div className="flex flex-col items-center justify-center h-full relative">
+        <div className="flex  items-center justify-center h-full relative">
           {/* Two-column layout for larger screens */}
-          <div className="w-full flex flex-col lg:flex-row items-center justify-start h-full relative">
+          <div className="w-full flex flex-col-reverse lg:flex-row items-center justify-start h-full relative">
             {/* Text content */}
             <div className="flex flex-col w-full lg:w-1/2 items-center lg:items-start justify-center text-center lg:text-left">
               <TextAnimation

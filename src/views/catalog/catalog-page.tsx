@@ -212,7 +212,7 @@ export default function CatalogPage() {
                         className="inter-var"
                         containerClassName="py-4"
                       >
-                        <CardBody className="bg-white relative group/card border-black/[0.1] w-[280px] sm:w-[300px] h-[400px] rounded-xl p-4 border shadow-pop-sm hover:shadow-lg transition-shadow duration-300">
+                        <CardBody className="bg-white relative group/card border-black/[0.1] w-[20rem] md:w-[300px] h-[400px] rounded-xl p-4 border shadow-pop-sm hover:shadow-lg transition-shadow duration-300">
                           <div className="mb-2">
                             <span className="inline-block px-3 py-1 bg-gray-100 text-gray-800 text-xs font-medium rounded-full">
                               {product.category}

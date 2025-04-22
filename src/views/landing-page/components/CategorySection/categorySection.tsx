@@ -37,14 +37,14 @@ export default function CategorySection() {
               text="Our Facilities"
               type="fadeIn"
               delay={0.2}
-              className="text-base font-primary text-secondary font-bold "
+              className="text-sm md:text-base font-primary text-secondary font-bold "
             />
             <TextAnimation
               text="Tailored for your speciality"
               type="slideUp"
               delay={0.4}
               duration={0.7}
-              className="text-4xl sm:text-xl md:text-3xl font-secondary leading-tight font-light text-black block"
+              className="text-xl  md:text-3xl font-secondary leading-tight font-light text-black block"
             />
           </section>
           <div className="flex items-center justify-end">

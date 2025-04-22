@@ -415,7 +415,7 @@ export default function ProductFilter({
                 onClick={handleClearFilters}
                 className="text-sm text-secondary hover:text-secondary-dark font-medium transition-colors flex items-center gap-1"
               >
-                <X className="h-4 w-4" />
+                <X className="h-4 w-4 " />
                 Clear All
               </button>
             )}
@@ -429,7 +429,7 @@ export default function ProductFilter({
                   category && (
                     <div
                       key={`selected-${id}`}
-                      className="bg-secondary bg-opacity-10 px-2 py-1 rounded-full text-xs font-medium text-secondary flex items-center gap-1"
+                      className="bg-secondary bg-opacity-10 px-2 py-1 rounded-full text-xs font-medium text-white flex items-center gap-1"
                     >
                       {category.name}
                       <button

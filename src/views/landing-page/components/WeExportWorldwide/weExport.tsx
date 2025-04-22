@@ -162,9 +162,9 @@ export default function WeExportWorldwide() {
   return (
     <div className="flex flex-row items-center justify-center py-20 h-screen md:h-[90vh] relative w-full bg-gradient-to-r from-white to-blue-50 dark:from-black dark:to-blue-950">
       <div className="max-w-7xl mx-auto w-full relative overflow-hidden h-full px-4">
-        <div className="flex flex-col-reverse lg:flex-row h-full items-center">
+        <div className="flex flex-col-reverse gap-16 md:gap-0 lg:flex-row h-full items-center">
           {/* Text content on left */}
-          <div className="w-full lg:w-1/2 z-40 flex flex-col items-center lg:items-start justify-center text-center lg:text-left">
+          <div className="w-full lg:w-1/2 z-40  flex flex-col items-center lg:items-start justify-center text-center lg:text-left">
             <TextAnimation
               text="Global Reach"
               type="fadeIn"
@@ -214,7 +214,7 @@ export default function WeExportWorldwide() {
           </div>
 
           {/* Globe on right with better loading handling */}
-          <div className="w-full lg:w-1/2 h-full relative">
+          <div className="w-full lg:w-1/2  h-full relative">
             <div className="absolute w-full h-full">
               <Suspense fallback={<GlobeLoading />}>
                 {isClient && isGlobeReady && (

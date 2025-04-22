@@ -38,7 +38,7 @@ export default function Footer() {
                 <p className="text-base underline">+977 9808000000</p>
               </div>
             </div>
-            <div className="flex flex-col items-end justify-end">
+            <div className="flex flex-col items-start md:items-end md:justify-end">
               <ul className="list-none flex flex-col gap-1  ">
                 <li className="mb-1 text-base">Our products</li>
                 <li className="mb-1 text-base">Therapeutic stakes</li>
@@ -47,7 +47,7 @@ export default function Footer() {
                 <li className="mb-1 text-base">The Vygon Group</li>
               </ul>
             </div>
-            <div className="flex flex-col items-center justify-center">
+            <div className="flex flex-col items-start md:items-center md:justify-center">
               <ul className="list-none flex flex-col gap-1  ">
                 <li className="mb-1">Contact</li>
                 <li className="mb-1">Join us</li>
@@ -55,7 +55,7 @@ export default function Footer() {
                 <li className="mb-1">Sign in</li>
               </ul>
             </div>
-            <div className="flex flex-col items-end justify-end">
+            <div className="flex flex-col items-start md:items-end md:justify-end">
               <ul className="list-none flex flex-col gap-1  ">
                 <li className="mb-1">Our other sites</li>
                 <li className="mb-1">IFU Hub</li>
@@ -66,7 +66,7 @@ export default function Footer() {
                 <li className="mb-1">VascuFirst</li>
               </ul>
             </div>
-            <div className="flex flex-col items-center justify-center -mt-12 min-w-[300px]">
+            <div className="flex flex-col items-center justify-center md:-mt-12 min-w-[300px]">
               <p className="text-lg font-fira-sans mb-4 font-bold">Follow us</p>
               <ul className="list-none mt-2 flex items-center gap-5">
                 <li className="mb-1 ">

@@ -1,10 +1,18 @@
 {
   "rewrites": [
     { "source": "/api/:path*", "destination": "/api/:path*" },
+    { "source": "/studio", "destination": "/studio" },
+    { "source": "/studio/:path*", "destination": "/studio/:path*" },
+    { "source": "/products", "destination": "/products" },
+    { "source": "/products/:path*", "destination": "/products/:path*" },
     { "source": "/(.*)", "destination": "/index.html" }
   ],
   "routes": [
     { "handle": "filesystem" },
+    { "src": "/studio", "dest": "/studio", "status": 200 },
+    { "src": "/studio/(.*)", "dest": "/studio/$1", "status": 200 },
+    { "src": "/products", "dest": "/products", "status": 200 },
+    { "src": "/products/(.*)", "dest": "/products/$1", "status": 200 },
     { "src": "/(.*)", "dest": "/index.html", "status": 200 }
   ],
   "headers": [

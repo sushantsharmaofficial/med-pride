@@ -81,10 +81,10 @@ export default function DesktopNavbar({ scrolled }: DesktopNavbarProps) {
             Blog
           </Link>
         </div>
-        <div className="flex items-center justify-end gap-4 lg:gap-8 text-black">
+        <div className="flex items-center justify-end gap-4 lg:gap-6 text-black">
           <button
             aria-label="Search"
-            className="flex items-center hover:bg-secondary hover:text-white transition-all duration-300 bg-transparent text-primary border rounded-full p-3 group border-primary hover:border-secondary cursor-pointer"
+            className="flex items-center hover:bg-secondary hover:text-white transition-all duration-300 bg-transparent text-primary border rounded-full p-3 group border-primary hover:border-secondary cursor-pointer shadow-pop-sm"
           >
             <Search className="w-5 h-5" />
           </button>
@@ -93,23 +93,23 @@ export default function DesktopNavbar({ scrolled }: DesktopNavbarProps) {
             className={`
               flex items-center bg-secondary text-white 
               transition-all duration-300 ease-out
-              border-none rounded-3xl font-fira-sans font-bold group 
-              shadow-md hover:shadow-lg hover:bg-primary
-              ${scrolled ? "px-4 py-2 text-sm" : "px-5 py-3 text-base"}
+              border-none rounded-3xl  group 
+              shadow-pop-sm hover:bg-primary px-5 py-3 text-base"
+             
             `}
           >
             <FileText
               className={`
-                mr-2 transition-all duration-300
-                ${scrolled ? "w-3.5 h-3.5" : "w-4.5 h-4.5"}
+                mr-2 transition-all duration-300 font-primary w-4.5 h-4.5
+
               `}
               aria-hidden="true"
             />
             Request Quote
             <ArrowRight
               className={`
-                ml-2 group-hover:translate-x-1 transition-all duration-300
-                ${scrolled ? "w-3.5 h-3.5" : "w-4.5 h-4.5"}
+                ml-2 group-hover:translate-x-1 transition-all duration-300 w-4.5 h-4.5
+
               `}
               aria-hidden="true"
             />
@@ -117,7 +117,7 @@ export default function DesktopNavbar({ scrolled }: DesktopNavbarProps) {
 
           <button
             aria-label="Wishlist"
-            className="flex items-center hover:bg-secondary hover:text-white transition-all duration-300 bg-transparent text-primary border rounded-full p-3 group border-primary hover:border-secondary cursor-pointer"
+            className="flex items-center hover:bg-secondary hover:text-white transition-all duration-300 bg-transparent text-primary border rounded-full p-3 group border-primary hover:border-secondary cursor-pointer shadow-pop-sm"
           >
             <Heart className={scrolled ? "w-4 h-4" : "w-5 h-5"} />
           </button>

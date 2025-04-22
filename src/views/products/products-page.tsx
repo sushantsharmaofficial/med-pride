@@ -317,7 +317,7 @@ export default function ProductsPage({ params }: ProductsPageProps) {
     <div className="min-h-screen bg-gray-50">
       {/* Hero section with title and search */}
       <section className="bg-gradient-to-b from-white to-blue-50 py-16 border-b border-gray-200">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto max-w-7xl px-4 md:px-6">
           <div className="flex flex-col items-center justify-center text-center max-w-3xl mx-auto">
             {isCategoryPage || isBrandPage ? (
               <>
@@ -523,7 +523,7 @@ export default function ProductsPage({ params }: ProductsPageProps) {
               {filteredProducts.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {filteredProducts.map((product) => (
-                    <div key={product.id} className="flex justify-center">
+                    <div key={product.id} className="flex justify-center ">
                       <Link
                         href={`/products/item/${product.id}`}
                         className="block"
@@ -532,7 +532,7 @@ export default function ProductsPage({ params }: ProductsPageProps) {
                           className="inter-var"
                           containerClassName="py-4"
                         >
-                          <CardBody className="bg-white relative group/card border-black/[0.1] w-[280px] sm:w-[300px] h-[400px] rounded-xl p-4 border shadow-pop-sm hover:shadow-lg transition-shadow duration-300">
+                          <CardBody className="bg-white relative group/card border-black/[0.1] w-[20rem] md:w-[300px] h-[400px] rounded-xl p-4 border shadow-pop-sm hover:shadow-lg transition-shadow duration-300">
                             <div className="mb-2">
                               <span className="inline-block px-3 py-1 bg-gray-100 text-gray-800 text-xs font-medium rounded-full">
                                 {product.category}

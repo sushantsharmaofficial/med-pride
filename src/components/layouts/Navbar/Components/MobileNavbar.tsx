@@ -2,9 +2,90 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight, ChevronDown, Heart, Menu, Search, X } from "lucide-react";
+import {
+  ArrowRight,
+  ChevronDown,
+  Heart,
+  Menu,
+  Search,
+  X,
+  FileText,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+
+// Import categories and brands from ProductsDropdown
+// Categories for the dropdown (matching those in the SideFilter)
+const productCategories = [
+  {
+    id: "diagnostic",
+    name: "Diagnostic Equipment",
+    count: 124,
+    slug: "diagnostic-equipment",
+  },
+  {
+    id: "surgical",
+    name: "Surgical Instruments",
+    count: 98,
+    slug: "surgical-instruments",
+  },
+  {
+    id: "monitoring",
+    name: "Monitoring Devices",
+    count: 76,
+    slug: "monitoring-devices",
+  },
+  {
+    id: "imaging",
+    name: "Imaging Systems",
+    count: 52,
+    slug: "imaging-systems",
+  },
+  {
+    id: "laboratory",
+    name: "Laboratory Equipment",
+    count: 87,
+    slug: "laboratory-equipment",
+  },
+  {
+    id: "dental",
+    name: "Dental Equipment",
+    count: 63,
+    slug: "dental-equipment",
+  },
+  {
+    id: "physiotherapy",
+    name: "Physiotherapy Equipment",
+    count: 45,
+    slug: "physiotherapy-equipment",
+  },
+  {
+    id: "emergency",
+    name: "Emergency Care",
+    count: 38,
+    slug: "emergency-care",
+  },
+];
+
+// Brands for the dropdown
+const brands = [
+  {
+    id: "siemens",
+    name: "Siemens Healthineers",
+    count: 42,
+    slug: "siemens-healthineers",
+  },
+  {
+    id: "philips",
+    name: "Philips Healthcare",
+    count: 38,
+    slug: "philips-healthcare",
+  },
+  { id: "ge", name: "GE Healthcare", count: 35, slug: "ge-healthcare" },
+  { id: "medtronic", name: "Medtronic", count: 29, slug: "medtronic" },
+  { id: "drager", name: "Drager", count: 24, slug: "drager" },
+  { id: "zeiss", name: "Carl Zeiss", count: 18, slug: "carl-zeiss" },
+];
 
 interface MobileNavbarProps {
   scrolled: boolean;
@@ -13,6 +94,9 @@ interface MobileNavbarProps {
 export default function MobileNavbar({ scrolled }: MobileNavbarProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [productsOpen, setProductsOpen] = useState(false);
+  const [categorySection, setCategorySection] = useState<
+    "categories" | "brands"
+  >("categories");
 
   // Prevent scrolling when mobile menu is open
   useEffect(() => {
@@ -46,23 +130,6 @@ export default function MobileNavbar({ scrolled }: MobileNavbarProps) {
     { name: "Catalog", href: "/catalog", hasDropdown: false },
     { name: "Brands", href: "/brands", hasDropdown: false },
     { name: "Blog", href: "/blog", hasDropdown: false },
-  ];
-
-  // Categories for the mobile dropdown
-  const productCategories = [
-    {
-      name: "Diagnostic Equipment",
-      href: "/products/category/diagnostic-equipment",
-    },
-    {
-      name: "Surgical Instruments",
-      href: "/products/category/surgical-instruments",
-    },
-    {
-      name: "Monitoring Devices",
-      href: "/products/category/monitoring-devices",
-    },
-    { name: "Imaging Systems", href: "/products/category/imaging-systems" },
   ];
 
   return (
@@ -135,7 +202,7 @@ export default function MobileNavbar({ scrolled }: MobileNavbarProps) {
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              className="fixed top-0 right-0 h-full w-72 bg-white shadow-xl overflow-y-auto z-10"
+              className="fixed top-0 right-0 h-full w-[90%] max-w-md bg-white shadow-xl overflow-y-auto z-10"
               onClick={(e) => e.stopPropagation()}
               role="dialog"
               aria-modal="true"
@@ -165,7 +232,7 @@ export default function MobileNavbar({ scrolled }: MobileNavbarProps) {
                   {navItems.map((item) => (
                     <li key={item.name}>
                       {item.hasDropdown ? (
-                        <div>
+                        <div className="mb-3">
                           <button
                             onClick={() => setProductsOpen(!productsOpen)}
                             className="flex items-center justify-between w-full px-4 py-3 text-left text-gray-700 hover:bg-gray-50 transition-colors"
@@ -181,26 +248,114 @@ export default function MobileNavbar({ scrolled }: MobileNavbarProps) {
                           </button>
                           <div
                             id={`${item.name.toLowerCase()}-dropdown`}
-                            className={`transition-all duration-200 ${
-                              productsOpen
-                                ? "max-h-96"
-                                : "max-h-0 overflow-hidden"
+                            className={`transition-all duration-300 overflow-hidden ${
+                              productsOpen ? "max-h-[800px]" : "max-h-0"
                             }`}
                           >
                             {productsOpen && (
-                              <ul className="pl-6 py-2 bg-gray-50">
-                                {productCategories.map((category) => (
-                                  <li key={category.name}>
-                                    <Link
-                                      href={category.href}
-                                      className="block px-4 py-2 text-sm text-gray-600 hover:text-secondary transition-colors"
-                                      onClick={() => setIsMenuOpen(false)}
-                                    >
-                                      {category.name}
-                                    </Link>
-                                  </li>
-                                ))}
-                              </ul>
+                              <div className="pt-2">
+                                {/* Header similar to desktop dropdown */}
+                                <div className="px-4 py-3 bg-gradient-to-r from-primary to-secondary text-white">
+                                  <h3 className="font-medium text-lg">
+                                    Medical Equipment
+                                  </h3>
+                                  <p className="text-xs opacity-90">
+                                    Find the right equipment for your healthcare
+                                    facility
+                                  </p>
+                                </div>
+
+                                {/* Category/Brand Tabs */}
+                                <div className="flex border-b">
+                                  <button
+                                    onClick={() =>
+                                      setCategorySection("categories")
+                                    }
+                                    className={`flex-1 py-2 text-sm font-medium ${
+                                      categorySection === "categories"
+                                        ? "text-secondary border-b-2 border-secondary"
+                                        : "text-gray-500"
+                                    }`}
+                                  >
+                                    Categories
+                                  </button>
+                                  <button
+                                    onClick={() => setCategorySection("brands")}
+                                    className={`flex-1 py-2 text-sm font-medium ${
+                                      categorySection === "brands"
+                                        ? "text-secondary border-b-2 border-secondary"
+                                        : "text-gray-500"
+                                    }`}
+                                  >
+                                    Brands
+                                  </button>
+                                </div>
+
+                                {/* Categories or Brands Content */}
+                                <div className="py-3 px-4">
+                                  {categorySection === "categories" && (
+                                    <ul className="space-y-2 max-h-[300px] overflow-y-auto">
+                                      {productCategories.map((category) => (
+                                        <li key={category.id}>
+                                          <Link
+                                            href={`/products/category/${category.slug}`}
+                                            className="flex items-center justify-between px-2 py-2 rounded-md hover:bg-gray-50 text-gray-700"
+                                            onClick={() => setIsMenuOpen(false)}
+                                          >
+                                            <span className="text-sm">
+                                              {category.name}
+                                            </span>
+                                            <span className="text-xs px-2 py-1 bg-gray-100 rounded-full text-gray-500">
+                                              {category.count}
+                                            </span>
+                                          </Link>
+                                        </li>
+                                      ))}
+                                    </ul>
+                                  )}
+
+                                  {categorySection === "brands" && (
+                                    <ul className="space-y-2 max-h-[300px] overflow-y-auto">
+                                      {brands.map((brand) => (
+                                        <li key={brand.id}>
+                                          <Link
+                                            href={`/products/brand/${brand.slug}`}
+                                            className="flex items-center justify-between px-2 py-2 rounded-md hover:bg-gray-50 text-gray-700"
+                                            onClick={() => setIsMenuOpen(false)}
+                                          >
+                                            <span className="text-sm">
+                                              {brand.name}
+                                            </span>
+                                            <span className="text-xs px-2 py-1 bg-gray-100 rounded-full text-gray-500">
+                                              {brand.count}
+                                            </span>
+                                          </Link>
+                                        </li>
+                                      ))}
+                                    </ul>
+                                  )}
+                                </div>
+
+                                {/* Footer Actions */}
+                                <div className="p-4 bg-gray-50 border-t border-gray-100 flex justify-between items-center">
+                                  <Link
+                                    href="/products"
+                                    className="text-sm text-primary hover:text-secondary font-medium flex items-center"
+                                    onClick={() => setIsMenuOpen(false)}
+                                  >
+                                    <span>View All</span>
+                                    <ArrowRight className="h-3.5 w-3.5 ml-1" />
+                                  </Link>
+                                  <Link
+                                    href="/catalog"
+                                    className="text-sm text-primary hover:text-secondary font-medium flex items-center"
+                                    onClick={() => setIsMenuOpen(false)}
+                                  >
+                                    <span>Catalog</span>
+                                    <ArrowRight className="h-3.5 w-3.5 ml-1" />
+                                  </Link>
+                                </div>
+                              </div>
                             )}
                           </div>
                         </div>
@@ -219,16 +374,15 @@ export default function MobileNavbar({ scrolled }: MobileNavbarProps) {
               </nav>
 
               <div className="px-4 py-3 border-t">
-                <div className="flex items-center justify-center">
-                  <Link
-                    href="/contact"
-                    onClick={() => setIsMenuOpen(false)}
-                    className="flex items-center justify-center gap-2 w-full px-4 py-3 bg-secondary text-white rounded-3xl font-medium transition-colors"
-                  >
-                    Contact
-                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-all duration-300" />
-                  </Link>
-                </div>
+                <Link
+                  href="/quote"
+                  onClick={() => setIsMenuOpen(false)}
+                  className="flex items-center justify-center gap-2 w-full px-4 py-3 bg-secondary text-white rounded-3xl font-medium shadow-md hover:bg-primary transition-colors"
+                >
+                  <FileText className="w-4 h-4" />
+                  Request Quote
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-all duration-300" />
+                </Link>
               </div>
 
               <div className="px-4 py-6 border-t">

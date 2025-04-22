@@ -40,7 +40,7 @@ export default function MainNavbar() {
   }, [scrolled]);
 
   return (
-    <nav className="w-full fixed top-0 left-0 right-0 z-50">
+    <nav className="w-full fixed top-0 left-0 right-0 z-[200]">
       <div className="relative">
         <TopHeader />
         <DesktopNavbar scrolled={scrolled} />

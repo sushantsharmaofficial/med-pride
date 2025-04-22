@@ -23,7 +23,7 @@ export default function DesktopNavbar({ scrolled }: DesktopNavbarProps) {
       className={`
         hidden lg:flex bg-white shadow-md items-center justify-between 
         transition-all duration-300 ease-out transform-gpu
-        ${scrolled ? "h-16 py-1" : "h-28 py-2"}
+        ${scrolled ? "h-16 py-1" : "h-[98px] py-2"}
       `}
     >
       <div className="container mx-auto max-w-7xl flex items-center justify-between px-4 md:px-6">

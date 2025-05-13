@@ -1,52 +1,25 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { ChevronDown, ChevronRight, Filter } from "lucide-react";
-
-// Define filter categories
-const categories = [
-  { id: "diagnostic", name: "Diagnostic Equipment", count: 124 },
-  { id: "surgical", name: "Surgical Instruments", count: 98 },
-  { id: "monitoring", name: "Monitoring Devices", count: 76 },
-  { id: "imaging", name: "Imaging Systems", count: 52 },
-  { id: "laboratory", name: "Laboratory Equipment", count: 87 },
-  { id: "dental", name: "Dental Equipment", count: 63 },
-  { id: "physiotherapy", name: "Physiotherapy Equipment", count: 45 },
-  { id: "emergency", name: "Emergency Care", count: 38 },
-];
-
-// Define brands
-const brands = [
-  { id: "siemens", name: "Siemens Healthineers", count: 42 },
-  { id: "philips", name: "Philips Healthcare", count: 38 },
-  { id: "ge", name: "GE Healthcare", count: 35 },
-  { id: "medtronic", name: "Medtronic", count: 29 },
-  { id: "drager", name: "Drager", count: 24 },
-  { id: "zeiss", name: "Carl Zeiss", count: 18 },
-  { id: "bpl", name: "BPL Medical", count: 15 },
-  { id: "mindray", name: "Mindray", count: 12 },
-];
-
-// Define price ranges
-const priceRanges = [
-  { id: "under1000", name: "Under $1,000", count: 64 },
-  { id: "1000to5000", name: "$1,000 - $5,000", count: 128 },
-  { id: "5000to10000", name: "$5,000 - $10,000", count: 86 },
-  { id: "10000to50000", name: "$10,000 - $50,000", count: 52 },
-  { id: "over50000", name: "Over $50,000", count: 23 },
-];
+import { getBrands, getDepartments } from "@/api/Products/product.api";
 
 // Proper type for filters
-interface FilterState {
-  categories?: string[];
+export interface FilterState {
+  departments?: string[];
   brands?: string[];
-  priceRanges?: string[];
+}
+
+interface FilterItem {
+  _id: string;
+  name: string;
+  count?: number;
 }
 
 interface FilterGroupProps {
   title: string;
-  items: { id: string; name: string; count: number }[];
+  items: FilterItem[];
   selectedItems: string[];
   onToggleItem: (id: string) => void;
   isExpanded?: boolean;
@@ -86,25 +59,27 @@ function FilterGroup({
           className="space-y-3 pl-1"
         >
           {items.map((item) => (
-            <div key={item.id} className="flex items-center gap-2">
+            <div key={item._id} className="flex items-center gap-2">
               <div className="relative flex items-start">
                 <div className="flex h-5 items-center">
                   <input
-                    id={`filter-${title}-${item.id}`}
-                    name={`filter-${title}-${item.id}`}
+                    id={`filter-${title}-${item._id}`}
+                    name={`filter-${title}-${item._id}`}
                     type="checkbox"
-                    checked={selectedItems.includes(item.id)}
-                    onChange={() => onToggleItem(item.id)}
+                    checked={selectedItems.includes(item._id)}
+                    onChange={() => onToggleItem(item._id)}
                     className="h-4 w-4 rounded border-gray-300 text-secondary focus:ring-secondary"
                   />
                 </div>
                 <div className="ml-2 text-sm leading-6">
                   <label
-                    htmlFor={`filter-${title}-${item.id}`}
+                    htmlFor={`filter-${title}-${item._id}`}
                     className="text-sm text-gray-700 flex justify-between w-full cursor-pointer hover:text-secondary transition-colors"
                   >
                     <span>{item.name}</span>
-                    <span className="text-gray-500 ml-2">({item.count})</span>
+                    {item.count !== undefined && (
+                      <span className="text-gray-500 ml-2">({item.count})</span>
+                    )}
                   </label>
                 </div>
               </div>
@@ -124,15 +99,41 @@ function FilterGroup({
 
 interface SideFilterProps {
   onFilterChange?: (filters: FilterState) => void;
+  initialFilters?: FilterState;
 }
 
-export default function SideFilter({ onFilterChange }: SideFilterProps) {
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
-  const [selectedPriceRanges, setSelectedPriceRanges] = useState<string[]>([]);
+export default function SideFilter({ 
+  onFilterChange, 
+  initialFilters = {}
+}: SideFilterProps) {
+  const [departments, setDepartments] = useState<FilterItem[]>([]);
+  const [brands, setBrands] = useState<FilterItem[]>([]);
+  const [selectedDepartments, setSelectedDepartments] = useState<string[]>(initialFilters.departments || []);
+  const [selectedBrands, setSelectedBrands] = useState<string[]>(initialFilters.brands || []);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const handleToggleCategory = (id: string) => {
-    setSelectedCategories((prev) =>
+  // Fetch departments and brands from Sanity
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsLoading(true);
+      try {
+        const departmentsData = await getDepartments();
+        const brandsData = await getBrands();
+        
+        setDepartments(departmentsData);
+        setBrands(brandsData);
+      } catch (error) {
+        console.error("Failed to fetch filter data:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const handleToggleDepartment = (id: string) => {
+    setSelectedDepartments((prev) =>
       prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
     );
   };
@@ -143,40 +144,43 @@ export default function SideFilter({ onFilterChange }: SideFilterProps) {
     );
   };
 
-  const handleTogglePriceRange = (id: string) => {
-    setSelectedPriceRanges((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
-    );
-  };
-
   const handleApplyFilters = () => {
     if (onFilterChange) {
       onFilterChange({
-        categories: selectedCategories,
+        departments: selectedDepartments,
         brands: selectedBrands,
-        priceRanges: selectedPriceRanges,
       });
     }
   };
 
   const handleClearFilters = () => {
-    setSelectedCategories([]);
+    setSelectedDepartments([]);
     setSelectedBrands([]);
-    setSelectedPriceRanges([]);
 
     if (onFilterChange) {
       onFilterChange({
-        categories: [],
+        departments: [],
         brands: [],
-        priceRanges: [],
       });
     }
   };
 
   const hasActiveFilters =
-    selectedCategories.length > 0 ||
-    selectedBrands.length > 0 ||
-    selectedPriceRanges.length > 0;
+    selectedDepartments.length > 0 ||
+    selectedBrands.length > 0;
+
+  if (isLoading) {
+    return (
+      <div className="border rounded-xl p-6 bg-white shadow-sm animate-pulse">
+        <div className="h-6 bg-gray-200 rounded w-1/3 mb-7"></div>
+        <div className="space-y-5">
+          <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+          <div className="h-4 bg-gray-200 rounded w-2/3"></div>
+          <div className="h-4 bg-gray-200 rounded w-4/5"></div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <motion.div
@@ -203,10 +207,10 @@ export default function SideFilter({ onFilterChange }: SideFilterProps) {
       </div>
 
       <FilterGroup
-        title="Categories"
-        items={categories}
-        selectedItems={selectedCategories}
-        onToggleItem={handleToggleCategory}
+        title="Departments"
+        items={departments}
+        selectedItems={selectedDepartments}
+        onToggleItem={handleToggleDepartment}
       />
 
       <FilterGroup
@@ -214,13 +218,6 @@ export default function SideFilter({ onFilterChange }: SideFilterProps) {
         items={brands}
         selectedItems={selectedBrands}
         onToggleItem={handleToggleBrand}
-      />
-
-      <FilterGroup
-        title="Price Range"
-        items={priceRanges}
-        selectedItems={selectedPriceRanges}
-        onToggleItem={handleTogglePriceRange}
       />
 
       <button

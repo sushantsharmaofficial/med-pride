@@ -1,102 +1,14 @@
 "use client";
 
-import React, { useState } from "react";
-import SearchInput from "@/components/atom/SearchInput";
-import TextAnimation from "@/components/animation/textAnimation/textAnimation";
-import { Heart, Star } from "lucide-react";
-import Image from "next/image";
-import Link from "next/link";
-import { CardBody, CardContainer, CardItem } from "@/components/ui/3d-card";
-import ProductFilter, { FilterState } from "@/components/atom/ProductFilter";
+import React, { useEffect, useState } from "react";
+import HeroSection from "@/components/common/HeroSection";
+import ProductDetailWrapper from "@/views/products/components/ProductDetailWrapper";
+import Pagination from "@/components/common/Pagination";
+import ProductCard from "@/components/common/ProductCard";
+import SideFilter, { FilterState } from "@/views/products/components/SideFilter";
 
-// Mock data for products
-const dummyProducts = [
-  {
-    id: "digital-xray-system",
-    title: "Digital X-Ray System Pro",
-    category: "Imaging",
-    manufacturer: "Siemens Healthineers",
-    price: "$24,999",
-    image: "/images/products/xray-system.jpg",
-    rating: 4.8,
-    reviewCount: 124,
-    isNew: true,
-  },
-  {
-    id: "ultrasound-machine",
-    title: "Advanced Ultrasound Machine",
-    category: "Diagnostic",
-    manufacturer: "GE Healthcare",
-    price: "$18,750",
-    image: "/images/products/ultrasound.jpg",
-    rating: 4.6,
-    reviewCount: 112,
-  },
-  {
-    id: "portable-ecg-machine",
-    title: "Portable ECG Machine",
-    category: "Diagnostic",
-    manufacturer: "BPL Medical",
-    price: "$3,499",
-    image: "/images/products/ecg-machine.jpg",
-    rating: 4.5,
-    reviewCount: 87,
-  },
-  {
-    id: "patient-monitor-ecg",
-    title: "Multi-Parameter Patient Monitor with ECG",
-    category: "Monitoring",
-    manufacturer: "Philips Healthcare",
-    price: "$7,999",
-    image: "/images/products/patient-monitor.jpg",
-    rating: 4.7,
-    reviewCount: 98,
-    isFeatured: true,
-  },
-  {
-    id: "surgical-microscope",
-    title: "High-Precision Surgical Microscope",
-    category: "Surgical",
-    manufacturer: "Carl Zeiss",
-    price: "$35,599",
-    image: "/images/products/surgical-microscope.jpg",
-    rating: 4.9,
-    reviewCount: 76,
-  },
-  {
-    id: "anesthesia-workstation",
-    title: "Advanced Anesthesia Workstation",
-    category: "Surgical",
-    manufacturer: "Drager",
-    price: "$42,850",
-    image: "/images/products/anesthesia-workstation.jpg",
-    rating: 4.8,
-    reviewCount: 64,
-    isNew: true,
-  },
-  {
-    id: "endoscopy-system",
-    title: "4K Endoscopy System",
-    category: "Surgical",
-    manufacturer: "Olympus",
-    price: "$29,999",
-    image: "/images/products/endoscopy-system.jpg",
-    rating: 4.6,
-    reviewCount: 84,
-    isNew: true,
-  },
-  {
-    id: "ventilator",
-    title: "Critical Care Ventilator",
-    category: "Critical Care",
-    manufacturer: "Medtronic",
-    price: "$22,750",
-    image: "/images/products/ventilator.jpg",
-    rating: 4.8,
-    reviewCount: 68,
-    isFeatured: true,
-  },
-];
+import { getProducts, getFilteredProducts, FilterParams } from "@/api/Products/product.api";
+import ProductNotFound from "./components/productNotFound";
 
 // Map category slugs to their respective IDs for filtering
 const categorySlugToId: Record<string, string> = {
@@ -120,6 +32,44 @@ const brandSlugToManufacturer: Record<string, string> = {
   "carl-zeiss": "Carl Zeiss",
 };
 
+interface SanityImageAsset {
+  _ref?: string;
+  _type?: string;
+}
+
+interface SanityBlockChild {
+  _key?: string;
+  _type?: string;
+  text?: string;
+  marks?: string[];
+}
+
+interface SanityBlock {
+  _key?: string;
+  _type?: string;
+  children?: SanityBlockChild[];
+  markDefs?: Array<{ _key: string; _type: string; [key: string]: unknown }>;
+  style?: string;
+}
+
+interface Product {
+  _id?: string;
+  _createdAt?: string;
+  _updatedAt?: string;
+  title: string;
+  brand?: { name: string };
+  department?: { name: string };
+  description?: SanityBlock[];
+  mainImage?: { _type: string; asset: SanityImageAsset };
+  gallery?: Array<{ _type: string; asset: SanityImageAsset }>;
+  slug: { current: string };
+  variations?: Array<{
+    _key: string;
+    label: string;
+    fields: Array<{ _key?: string; name?: string; value?: string }>;
+  }>;
+}
+
 interface ProductsPageProps {
   params?: {
     slug?: string[];
@@ -127,6 +77,18 @@ interface ProductsPageProps {
 }
 
 export default function ProductsPage({ params }: ProductsPageProps) {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const productsPerPage = 9; // Number of products to display per page
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      const data = await getProducts();
+      setProducts(data);
+    })();
+  }, []);
+
   // Extract category or brand from URL if present
 
   // Get the slug array safely - handle both string and object formats
@@ -181,47 +143,58 @@ export default function ProductsPage({ params }: ProductsPageProps) {
   const initialFilters: FilterState = {};
 
   if (isCategoryPage && slugValue && categorySlugToId[slugValue]) {
-    initialFilters.categories = [categorySlugToId[slugValue]];
+    initialFilters.departments = [categorySlugToId[slugValue]];
   }
 
   // Find the specific product if we're on an item page
   const selectedProduct = isItemPage
-    ? dummyProducts.find((product) => product.id === slugValue)
+    ? products.find((product) => product.slug.current === slugValue)
     : null;
 
-  const [, setSearchQuery] = useState("");
-  const [selectedFilters, setSelectedFilters] =
-    useState<FilterState>(initialFilters);
-  const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
+  const handleSearch = (query: string) => {
+    // Here you would typically call an API to filter products
+    console.log("Searching for:", query);
+  };
 
-  // Filter products based on selected filters and brand if applicable
-  const filteredProducts = dummyProducts.filter((product) => {
-    // For brand pages
-    if (isBrandPage && slugValue && brandSlugToManufacturer[slugValue]) {
-      return product.manufacturer === brandSlugToManufacturer[slugValue];
+  const handleFilterChange = async (filters: FilterState) => {
+    setIsLoading(true);
+    
+    try {
+      const apiFilters: FilterParams = {
+        brands: filters.brands || [],
+        departments: filters.departments || []
+      };
+      
+      const filteredData = await getFilteredProducts(apiFilters);
+      setProducts(filteredData);
+    } catch (error) {
+      console.error("Error filtering products:", error);
+    } finally {
+      setIsLoading(false);
     }
+  };
 
-    // For category pages or general filtering
-    if (!selectedFilters.categories?.length) {
-      return true;
-    }
+  // We don't need to filter products in the component anymore as it's done in the API
+  const filteredProducts = products;
 
-    // Map product categories to IDs for comparison
-    const categoryMap: Record<string, string> = {
-      Imaging: "imaging",
-      Diagnostic: "diagnostic",
-      Monitoring: "monitoring",
-      Surgical: "surgical",
-      "Critical Care": "emergency",
-      Laboratory: "laboratory",
-      Dental: "dental",
-    };
-
-    // Check if product category matches any selected category
-    return selectedFilters.categories.includes(
-      categoryMap[product.category] || ""
-    );
-  });
+  // Calculate total pages
+  const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
+  
+  // Get current products to display
+  const getCurrentProducts = () => {
+    const startIndex = (currentPage - 1) * productsPerPage;
+    const endIndex = startIndex + productsPerPage;
+    return filteredProducts.slice(startIndex, endIndex);
+  };
+  
+  const displayedProducts = getCurrentProducts();
+  
+  // Handle page change
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    // Scroll to top when changing pages
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   // Generate page title based on current view
   const getPageTitle = () => {
@@ -254,7 +227,7 @@ export default function ProductsPage({ params }: ProductsPageProps) {
   // Generate page description based on current view
   const getPageDescription = () => {
     if (isItemPage && selectedProduct) {
-      return `${selectedProduct.title} by ${selectedProduct.manufacturer} - ${selectedProduct.category}`;
+      return `${selectedProduct.title} by ${selectedProduct.brand?.name} - ${selectedProduct.department?.name}`;
     } else if (isCategoryPage && slugValue) {
       const categoryName = slugValue
         .split("-")
@@ -277,7 +250,7 @@ export default function ProductsPage({ params }: ProductsPageProps) {
   // Generate search placeholder based on current view
   const getSearchPlaceholder = () => {
     if (isItemPage && selectedProduct) {
-      return `Search similar ${selectedProduct.category} equipment...`;
+      return `Search similar ${selectedProduct.department?.name} equipment...`;
     } else if (isCategoryPage && slugValue) {
       const categoryName = slugValue
         .split("-")
@@ -297,185 +270,39 @@ export default function ProductsPage({ params }: ProductsPageProps) {
     }
   };
 
-  const handleSearch = (query: string) => {
-    setSearchQuery(query);
-    // Here you would typically call an API to filter products
-    console.log("Searching for:", query);
-  };
-
-  const handleFilterChange = (filters: FilterState) => {
-    setSelectedFilters(filters);
-    // Here you would typically call an API to filter products
-    console.log("Applied filters:", filters);
-  };
-
-  const toggleMobileFilter = () => {
-    setIsMobileFilterOpen(!isMobileFilterOpen);
-  };
-
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-t from-white to-blue-50 py-16 ">
       {/* Hero section with title and search */}
-      <section className="bg-gradient-to-b from-white to-blue-50 py-16 border-b border-gray-200">
-        <div className="container mx-auto max-w-7xl px-4 md:px-6">
-          <div className="flex flex-col items-center justify-center text-center max-w-3xl mx-auto">
-            {isCategoryPage || isBrandPage ? (
-              <>
-                <div className="flex flex-col items-center mb-2">
-                  <div className="text-sm text-white font-medium mb-2 bg-secondary bg-opacity-10 px-3 py-1 rounded-full">
-                    {isCategoryPage ? "Category" : "Brand"}
-                  </div>
-                  <TextAnimation
-                    text={getPageTitle()}
-                    type="staggered"
-                    delay={0.2}
-                    className="text-4xl md:text-5xl lg:text-6xl font-secondary leading-tight  text-primary block"
-                  />
-                </div>
-
-                <div className="w-16 h-1 bg-secondary mx-auto mb-6 rounded-full"></div>
-              </>
-            ) : isItemPage && selectedProduct ? (
-              <>
-                <div className="flex flex-col items-center mb-2">
-                  <div className="text-sm text-white font-medium mb-2 bg-secondary bg-opacity-10 px-3 py-1 rounded-full">
-                    {selectedProduct.category}
-                  </div>
-                  <TextAnimation
-                    text={selectedProduct.title}
-                    type="staggered"
-                    delay={0.2}
-                    className="text-4xl md:text-5xl lg:text-6xl font-secondary leading-tight  text-primary block"
-                  />
-                </div>
-                <div className="w-16 h-1 bg-secondary mx-auto mb-6 rounded-full"></div>
-                <div className="text-lg font-medium text-gray-600">
-                  By {selectedProduct.manufacturer}
-                </div>
-              </>
-            ) : (
-              <TextAnimation
-                text={getPageTitle()}
-                type="staggered"
-                delay={0.2}
-                className="text-4xl md:text-5xl lg:text-6xl font-secondary leading-tight font-light text-primary block"
-              />
-            )}
-
-            <TextAnimation
-              text={getPageDescription()}
-              type="fadeIn"
-              delay={0.6}
-              duration={0.8}
-              className="text-base md:text-lg font-primary max-w-2xl text-gray-600 mt-4 mb-10"
-            />
-
-            <div className="w-full max-w-2xl">
-              <SearchInput
-                placeholder={getSearchPlaceholder()}
-                onSearch={handleSearch}
-                className="w-full"
-              />
-            </div>
-          </div>
-        </div>
-      </section>
+      <HeroSection
+        title={getPageTitle()}
+        description={getPageDescription()}
+        searchPlaceholder={getSearchPlaceholder()}
+        onSearch={handleSearch}
+        badge={
+          isCategoryPage || isBrandPage
+            ? {
+                text: isCategoryPage ? "Category" : "Brand",
+                type: isCategoryPage ? "category" : "brand",
+              }
+            : isItemPage && selectedProduct
+            ? {
+                text: selectedProduct.department?.name || "Department",
+                type: "product",
+              }
+            : undefined
+        }
+        subtitle={
+          isItemPage && selectedProduct
+            ? `By ${selectedProduct.brand?.name}`
+            : undefined
+        }
+      />
 
       {/* Main content section */}
       {isItemPage && selectedProduct ? (
         // Single product view
         <section className="container mx-auto px-4 py-12 md:py-16">
-          <div className="bg-white rounded-xl shadow-md p-6 md:p-8">
-            <div className="flex flex-col md:flex-row gap-8">
-              {/* Product Image */}
-              <div className="md:w-1/2 bg-gray-50 rounded-lg p-6 flex items-center justify-center">
-                <div className="relative h-80 w-full">
-                  <Image
-                    src={selectedProduct.image}
-                    alt={selectedProduct.title}
-                    fill
-                    className="object-contain"
-                  />
-                </div>
-              </div>
-
-              {/* Product Details */}
-              <div className="md:w-1/2">
-                <div className="flex flex-col h-full">
-                  <div className="mb-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex gap-2">
-                        <span className="text-sm font-medium bg-secondary bg-opacity-10 text-secondary px-3 py-1 rounded-full">
-                          {selectedProduct.category}
-                        </span>
-                        {selectedProduct.isNew && (
-                          <span className="text-sm font-medium bg-green-100 text-green-700 px-3 py-1 rounded-full">
-                            New
-                          </span>
-                        )}
-                      </div>
-                      <button className="text-gray-400 hover:text-secondary transition-colors p-2">
-                        <Heart className="h-6 w-6" />
-                      </button>
-                    </div>
-
-                    <h1 className="text-3xl font-secondary font-bold text-primary mb-2">
-                      {selectedProduct.title}
-                    </h1>
-
-                    <div className="text-lg text-gray-600 mb-2">
-                      By{" "}
-                      <span className="font-medium text-secondary">
-                        {selectedProduct.manufacturer}
-                      </span>
-                    </div>
-
-                    {selectedProduct.rating && (
-                      <div className="flex items-center mb-4">
-                        <div className="flex">
-                          {[...Array(5)].map((_, i) => (
-                            <Star
-                              key={i}
-                              className={`h-5 w-5 ${
-                                i < Math.floor(selectedProduct.rating)
-                                  ? "text-yellow-400 fill-yellow-400"
-                                  : "text-gray-300 fill-gray-300"
-                              }`}
-                            />
-                          ))}
-                        </div>
-                        <span className="text-gray-600 ml-2">
-                          {selectedProduct.rating.toFixed(1)} (
-                          {selectedProduct.reviewCount} reviews)
-                        </span>
-                      </div>
-                    )}
-
-                    <div className="border-t border-b border-gray-100 py-4 my-4">
-                      <div className="text-3xl font-bold text-secondary mb-2">
-                        {selectedProduct.price}
-                      </div>
-                      <p className="text-gray-500 text-sm">
-                        Price includes standard warranty. Extended warranty
-                        options available.
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="mt-auto">
-                    <div className="grid grid-cols-2 gap-4">
-                      <button className="py-3 px-6 bg-secondary text-white font-medium rounded-lg hover:bg-secondary-dark transition-colors">
-                        Add to Cart
-                      </button>
-                      <button className="py-3 px-6 border border-secondary text-secondary font-medium rounded-lg hover:bg-secondary hover:text-white transition-colors">
-                        Request Quote
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <ProductDetailWrapper product={selectedProduct} />
         </section>
       ) : (
         // Products grid view
@@ -483,17 +310,14 @@ export default function ProductsPage({ params }: ProductsPageProps) {
           <div className="flex flex-col md:flex-row gap-8 relative">
             {/* ProductFilter component for both mobile and desktop */}
             <div className="md:w-1/4">
-              <ProductFilter
+              <SideFilter
                 onFilterChange={handleFilterChange}
-                initialFilters={selectedFilters}
-                productCount={filteredProducts.length}
-                isMobileFilterOpen={isMobileFilterOpen}
-                onToggleMobileFilter={toggleMobileFilter}
+                initialFilters={initialFilters}
               />
             </div>
 
             {/* Products grid */}
-            <div className={`w-full ${isBrandPage ? "" : "md:w-3/4"}`}>
+            <div className={`w-full ${isBrandPage ? "" : "md:w-3/4"} ` }>
               <div className="hidden md:flex justify-between items-center mb-8 pb-4 border-b border-gray-200">
                 {isCategoryPage || isBrandPage ? (
                   <div className="flex items-baseline">
@@ -520,152 +344,37 @@ export default function ProductsPage({ params }: ProductsPageProps) {
                 </div>
               </div>
 
-              {filteredProducts.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {filteredProducts.map((product) => (
-                    <div key={product.id} className="flex justify-center ">
-                      <Link
-                        href={`/products/item/${product.id}`}
-                        className="block"
-                      >
-                        <CardContainer
-                          className="inter-var"
-                          containerClassName="py-4"
-                        >
-                          <CardBody className="bg-white relative group/card border-black/[0.1] w-[20rem] md:w-[300px] h-[400px] rounded-xl p-4 border shadow-pop-sm hover:shadow-lg transition-shadow duration-300">
-                            <div className="mb-2">
-                              <span className="inline-block px-3 py-1 bg-gray-100 text-gray-800 text-xs font-medium rounded-full">
-                                {product.category}
-                              </span>
-                              {product.isNew && (
-                                <span className="ml-2 inline-block px-3 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full">
-                                  New
-                                </span>
-                              )}
-                              {product.isFeatured && (
-                                <span className="ml-2 inline-block px-3 py-1 bg-primary text-white text-xs font-medium rounded-full">
-                                  Featured
-                                </span>
-                              )}
-                            </div>
-                            <CardItem
-                              translateZ="50"
-                              className="text-lg font-bold text-primary font-primary line-clamp-1"
-                            >
-                              {product.title}
-                            </CardItem>
-                            <CardItem
-                              translateZ="30"
-                              className="text-neutral-500 text-sm mt-1 font-secondary"
-                            >
-                              {product.manufacturer}
-                            </CardItem>
-                            <CardItem translateZ="40" className="mt-2">
-                              <div className="flex items-center">
-                                <div className="flex text-yellow-400">
-                                  {[...Array(5)].map((_, i) => (
-                                    <span
-                                      key={i}
-                                      className={
-                                        i < Math.floor(product.rating || 0)
-                                          ? "text-yellow-400"
-                                          : "text-gray-300"
-                                      }
-                                    >
-                                      ★
-                                    </span>
-                                  ))}
-                                </div>
-                                <span className="text-gray-500 ml-2">
-                                  ({product.reviewCount})
-                                </span>
-                              </div>
-                            </CardItem>
-                            <CardItem translateZ="100" className="w-full mt-4">
-                              <div className="relative h-44 w-full">
-                                <Image
-                                  src={
-                                    product.category === "Imaging"
-                                      ? "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3"
-                                      : product.category === "Diagnostic"
-                                      ? "https://images.unsplash.com/photo-1530026405186-ed1f139313f8?q=80&w=2574&auto=format&fit=crop&ixlib=rb-4.0.3"
-                                      : product.category === "Monitoring"
-                                      ? "https://images.unsplash.com/photo-1581595219315-a187dd40c322?q=80&w=2574&auto=format&fit=crop&ixlib=rb-4.0.3"
-                                      : product.category === "Surgical"
-                                      ? "https://images.unsplash.com/photo-1579154204601-01588f351e67?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3"
-                                      : product.category === "Laboratory"
-                                      ? "https://images.unsplash.com/photo-1582719471384-894fbb16e074?q=80&w=2574&auto=format&fit=crop&ixlib=rb-4.0.3"
-                                      : product.category === "Critical Care"
-                                      ? "https://images.unsplash.com/photo-1584036561566-baf8f5f1b144?q=80&w=2574&auto=format&fit=crop&ixlib=rb-4.0.3"
-                                      : "https://images.unsplash.com/photo-1576091160550-2173dba999ef?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3"
-                                  }
-                                  fill
-                                  className="object-cover rounded-xl group-hover/card:shadow-xl"
-                                  alt={product.title}
-                                />
-                              </div>
-                            </CardItem>
-                            <div className="flex justify-between items-center mt-auto pt-4">
-                              <CardItem
-                                translateZ={20}
-                                as="div"
-                                className="text-lg font-bold text-secondary"
-                              >
-                                {product.price}
-                              </CardItem>
-                              <CardItem
-                                translateZ={20}
-                                as="button"
-                                className="px-4 py-2 rounded-xl bg-primary hover:bg-secondary transition-colors text-white text-xs font-bold"
-                              >
-                                Request Quote
-                              </CardItem>
-                            </div>
-                          </CardBody>
-                        </CardContainer>
-                      </Link>
+              {isLoading ? (
+                <div className="col-span-3 md:col-span-2 lg:col-span-3 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 animate-pulse">
+                  {[...Array(6)].map((_, index) => (
+                    <div key={index} className="border rounded-xl p-6 bg-white shadow-sm h-80">
+                      <div className="h-40 bg-gray-200 rounded mb-4"></div>
+                      <div className="h-5 bg-gray-200 rounded w-3/4 mb-3"></div>
+                      <div className="h-4 bg-gray-200 rounded w-1/2 mb-5"></div>
+                      <div className="h-8 bg-gray-200 rounded"></div>
                     </div>
                   ))}
                 </div>
               ) : (
-                <div className="col-span-3 py-20 text-center">
-                  <h3 className="text-xl font-medium text-gray-700 mb-2">
-                    No products found
-                  </h3>
-                  <p className="text-gray-500 mb-8">
-                    Try adjusting your filters or search to find what
-                    you&apos;re looking for.
-                  </p>
-                  <button
-                    onClick={() => setSelectedFilters({})}
-                    className="px-4 py-2 bg-secondary text-white rounded-md hover:bg-secondary-dark transition-colors"
-                  >
-                    Clear Filters
-                  </button>
+                <div className="col-span-3 md:col-span-2 lg:col-span-3 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  {displayedProducts.length > 0 ? (
+                    displayedProducts.map((product) => (
+                      <ProductCard key={product._id} product={product} />
+                    ))
+                  ) : (
+                    <ProductNotFound />
+                  )}
                 </div>
               )}
 
-              {/* Pagination - only show if there are products */}
+              {/* Use the new Pagination component */}
               {filteredProducts.length > 0 && (
-                <div className="mt-16 flex justify-center">
-                  <div className="flex space-x-2">
-                    <button className="px-4 py-2 rounded-md bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors">
-                      Previous
-                    </button>
-                    <button className="px-4 py-2 rounded-md bg-secondary text-white hover:bg-secondary-dark transition-colors font-medium">
-                      1
-                    </button>
-                    <button className="px-4 py-2 rounded-md bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors">
-                      2
-                    </button>
-                    <button className="px-4 py-2 rounded-md bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors">
-                      3
-                    </button>
-                    <button className="px-4 py-2 rounded-md bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors">
-                      Next
-                    </button>
-                  </div>
-                </div>
+                <Pagination 
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={handlePageChange}
+                  className="mt-16"
+                />
               )}
             </div>
           </div>

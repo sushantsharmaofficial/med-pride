@@ -1,12 +1,11 @@
 "use client";
 
 import React, { useState } from "react";
-import SearchInput from "@/components/atom/SearchInput";
-import TextAnimation from "@/components/animation/textAnimation/textAnimation";
 import Image from "next/image";
 import Link from "next/link";
 import { CardBody, CardContainer, CardItem } from "@/components/ui/3d-card";
 import ProductFilter, { FilterState } from "@/components/atom/ProductFilter";
+import HeroSection from "@/components/common/HeroSection";
 
 // Mock data for catalog products
 const catalogProducts = [
@@ -144,34 +143,12 @@ export default function CatalogPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero section with title and search */}
-      <section className="bg-gradient-to-b from-white to-blue-50 py-16 border-b border-gray-200">
-        <div className="container max-w-7xl md:px-6 mx-auto px-4">
-          <div className="flex flex-col items-center justify-center text-center max-w-3xl mx-auto">
-            <TextAnimation
-              text="Medical Equipment Catalog"
-              type="staggered"
-              delay={0.2}
-              className="text-4xl md:text-5xl lg:text-6xl font-secondary leading-tight font-light text-primary block"
-            />
-
-            <TextAnimation
-              text="Find high-quality medical devices for your healthcare facility"
-              type="fadeIn"
-              delay={0.6}
-              duration={0.8}
-              className="text-base md:text-lg font-primary max-w-2xl text-gray-600 mt-4 mb-10"
-            />
-
-            <div className="w-full max-w-2xl">
-              <SearchInput
-                placeholder="Search medical equipment..."
-                onSearch={handleSearch}
-                className="w-full"
-              />
-            </div>
-          </div>
-        </div>
-      </section>
+      <HeroSection
+        title="Medical Equipment Catalog"
+        description="Find high-quality medical devices for your healthcare facility"
+        searchPlaceholder="Search medical equipment..."
+        onSearch={handleSearch}
+      />
 
       {/* Main content section */}
       <section className="container mx-auto px-4 py-12 md:py-16">

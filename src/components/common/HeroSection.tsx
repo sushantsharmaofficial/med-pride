@@ -12,6 +12,7 @@ interface HeroSectionProps {
     type?: "category" | "brand" | "product";
   };
   subtitle?: string;
+  liveSearch?: boolean;
 }
 
 const HeroSection: React.FC<HeroSectionProps> = ({
@@ -21,6 +22,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
   onSearch,
   badge,
   subtitle,
+  liveSearch = false,
 }) => {
   return (
     <section className=" py-16 border-b border-gray-200">
@@ -68,6 +70,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
               placeholder={searchPlaceholder}
               onSearch={onSearch}
               className="w-full"
+              liveSearch={liveSearch}
             />
           </div>
         </div>

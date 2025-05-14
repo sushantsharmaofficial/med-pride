@@ -1,5 +1,5 @@
 import { client } from "@/sanity/lib/client";
-import { productQuery, productBySlugQuery, filteredProductsQuery, brandQuery, departmentQuery } from "../GROQ/Queries";
+import { productQuery, productBySlugQuery, filteredProductsQuery, brandQuery, departmentQuery, productBySearchQuery } from "../GROQ/Queries";
 
 export const getProducts = async () => {
   const products = await client.fetch(productQuery);
@@ -47,6 +47,17 @@ export const getFilteredProducts = async (filters: FilterParams) => {
       .replace('$departmentFilter', departmentFilter)
   );
 
+  return products;
+};
+
+// Search Products
+
+export interface SearchParams {
+  searchQuery: string;
+}
+
+export const getProductsBySearch = async (searchParams: SearchParams) => {
+  const products = await client.fetch(productBySearchQuery, searchParams);
   return products;
 };
 

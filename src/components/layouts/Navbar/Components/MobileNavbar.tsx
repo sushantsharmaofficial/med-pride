@@ -176,12 +176,7 @@ export default function MobileNavbar({ scrolled }: MobileNavbarProps) {
             >
               <Search className="w-4 h-4" />
             </button>
-            <button
-              aria-label="Wishlist"
-              className="flex items-center hover:bg-secondary hover:text-white transition-all duration-300 bg-transparent text-primary border rounded-full p-2 group border-primary hover:border-secondary cursor-pointer"
-            >
-              <Heart className="w-4 h-4" />
-            </button>
+          
             <button
               onClick={() => setIsMenuOpen(true)}
               aria-label="Open menu"

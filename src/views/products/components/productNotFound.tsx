@@ -3,7 +3,7 @@ import React from 'react'
 
 export default function productNotFound() {
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-auto  flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-md w-full text-center">
           {/* Medical equipment illustration */}
           <div className="relative w-48 h-48 mx-auto mb-6">

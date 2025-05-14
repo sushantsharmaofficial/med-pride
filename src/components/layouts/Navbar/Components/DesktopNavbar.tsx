@@ -123,12 +123,7 @@ export default function DesktopNavbar({ scrolled }: DesktopNavbarProps) {
             />
           </Link>
 
-          <button
-            aria-label="Wishlist"
-            className="flex items-center hover:bg-secondary hover:text-white transition-all duration-300 bg-transparent text-primary border rounded-full p-3 group border-primary hover:border-secondary cursor-pointer shadow-pop-sm"
-          >
-            <Heart className={scrolled ? "w-4 h-4" : "w-5 h-5"} />
-          </button>
+         
         </div>
       </div>
     </div>

@@ -1,13 +1,15 @@
 "use client";
 
 import React from "react";
+import { Trio } from 'ldrs/react';
+import 'ldrs/react/Trio.css';
 
 interface LoaderProps {
   size?: "small" | "medium" | "large";
   variant?: "primary" | "secondary";
   fullPage?: boolean;
   text?: string;
-  type?: "spinner" | "pulse" | "medical";
+  type?: "spinner" | "pulse" | "medical" | "trio";
 }
 
 export const Loader: React.FC<LoaderProps> = ({
@@ -15,7 +17,7 @@ export const Loader: React.FC<LoaderProps> = ({
   variant = "primary",
   fullPage = false,
   text,
-  type = "medical",
+  type = "trio",
 }) => {
   // Size mapping
   const sizeClasses = {
@@ -30,9 +32,24 @@ export const Loader: React.FC<LoaderProps> = ({
     secondary: "text-secondary",
   };
 
+  // Trio loader size mapping
+  const trioSizes = {
+    small: "20",
+    medium: "40",
+    large: "60",
+  };
+
   // Render different loader types
   const renderLoader = () => {
     switch (type) {
+      case "trio":
+        return (
+          <Trio
+            size={trioSizes[size]}
+            speed="1.3"
+            color={variant === "primary" ? "var(--color-primary)" : "var(--color-secondary)"}
+          />
+        );
       case "spinner":
         return (
           <div
@@ -60,7 +77,6 @@ export const Loader: React.FC<LoaderProps> = ({
           </div>
         );
       case "medical":
-      default:
         return (
           <div className={`relative ${sizeClasses[size]}`}>
             {/* Medical cross with pulse effect */}

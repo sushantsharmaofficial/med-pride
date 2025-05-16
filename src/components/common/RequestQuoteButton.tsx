@@ -74,7 +74,7 @@ const RequestQuoteButton: React.FC<RequestQuoteButtonProps> = ({
       <>
         <button
           onClick={handleOpenModal}
-          className={`flex items-center justify-center gap-2 w-full px-4 py-3 bg-secondary text-white rounded-3xl font-medium shadow-md hover:bg-primary transition-colors ${className}`}
+          className={`flex items-center justify-center gap-2 w-full px-4 py-3 bg-secondary text-white rounded-3xl font-medium shadow-md hover:bg-primary transition-colors cursor-pointer ${className}`}
         >
           <FileText className="w-4 h-4" />
           Request Quote
@@ -101,7 +101,7 @@ const RequestQuoteButton: React.FC<RequestQuoteButtonProps> = ({
           flex items-center bg-secondary text-white 
           transition-all duration-300 ease-out
           border-none rounded-3xl group 
-          shadow-pop-sm hover:bg-primary px-5 py-3 text-base
+          shadow-pop-sm hover:bg-primary px-5 py-3 text-base cursor-pointer
           ${className}
         `}
         whileHover={{ scale: 1.02 }}

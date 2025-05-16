@@ -51,6 +51,8 @@ export const brandQuery = `*[_type=="brand"] | order(_createdAt desc){
   description
 }`
 
+export const brandCountQuery = `count(*[_type=="product" && brand._ref == $brandId])`
+
 // Search Brand Queries
 
 export const searchBrandQuery = `*[_type=="brand" && name match $searchQuery] | order(_createdAt desc){
@@ -66,6 +68,8 @@ export const departmentQuery = `*[_type=="department"] | order(_createdAt desc){
   name,
   description
 }`
+
+export const departmentCountQuery = `count(*[_type=="product" && department._ref == $departmentId])`
 
 // Filtered Products Queries
 

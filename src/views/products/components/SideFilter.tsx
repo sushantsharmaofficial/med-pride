@@ -3,7 +3,9 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { ChevronDown, ChevronRight, Filter } from "lucide-react";
-import { getBrands, getDepartments } from "@/api/Products/product.api";
+import { getBrands } from "@/api/Products/product.api";
+import { getBrandCount } from "@/api/Brands/brands.api";
+import { getDepartments, getDepartmentCount } from "@/api/Departments/departments.api";
 
 // Proper type for filters
 export interface FilterState {
@@ -71,14 +73,14 @@ function FilterGroup({
                     className="h-4 w-4 rounded border-gray-300 text-secondary focus:ring-secondary"
                   />
                 </div>
-                <div className="ml-2 text-sm leading-6">
+                <div className="ml-2 text-sm leading-6 w-full">
                   <label
                     htmlFor={`filter-${title}-${item._id}`}
-                    className="text-sm text-gray-700 flex justify-between w-full cursor-pointer hover:text-secondary transition-colors"
+                    className="text-sm text-gray-700 flex  items-center justify-between w-full cursor-pointer hover:text-secondary transition-colors"
                   >
                     <span>{item.name}</span>
                     {item.count !== undefined && (
-                      <span className="text-gray-500 ml-2">({item.count})</span>
+                      <span className="text-blue-500 ml-2 self-end">({item.count})</span>
                     )}
                   </label>
                 </div>
@@ -120,8 +122,24 @@ export default function SideFilter({
         const departmentsData = await getDepartments();
         const brandsData = await getBrands();
         
-        setDepartments(departmentsData);
-        setBrands(brandsData);
+        // Fetch count for each brand
+        const brandsWithCount = await Promise.all(
+          brandsData.map(async (brand: FilterItem) => {
+            const count = await getBrandCount(brand._id);
+            return { ...brand, count };
+          })
+        );
+        
+        // Fetch count for each department
+        const departmentsWithCount = await Promise.all(
+          departmentsData.map(async (department: FilterItem) => {
+            const count = await getDepartmentCount(department._id);
+            return { ...department, count };
+          })
+        );
+        
+        setDepartments(departmentsWithCount);
+        setBrands(brandsWithCount);
       } catch (error) {
         console.error("Failed to fetch filter data:", error);
       } finally {

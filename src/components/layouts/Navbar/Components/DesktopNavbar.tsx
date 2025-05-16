@@ -6,6 +6,7 @@ import { ChevronDown, Search } from "lucide-react";
 import ProductsDropdown from "./ProductsDropdown";
 import { useState } from "react";
 import RequestQuoteButton from "@/components/common/RequestQuoteButton";
+import SearchPopup from "@/components/common/SearchPopup";
 
 interface DesktopNavbarProps {
   scrolled: boolean;
@@ -13,6 +14,7 @@ interface DesktopNavbarProps {
 
 export default function DesktopNavbar({ scrolled }: DesktopNavbarProps) {
   const [productsHovered, setProductsHovered] = useState(false);
+  const [isSearchPopupOpen, setIsSearchPopupOpen] = useState(false);
 
   // Handler to close dropdown when an option is clicked
   const handleProductOptionClick = () => {
@@ -94,12 +96,17 @@ export default function DesktopNavbar({ scrolled }: DesktopNavbarProps) {
           <button
             aria-label="Search"
             className="flex items-center hover:bg-secondary hover:text-white transition-all duration-300 bg-transparent text-primary border rounded-full p-3 group border-primary hover:border-secondary cursor-pointer shadow-pop-sm"
+            onClick={() => setIsSearchPopupOpen(true)}
           >
             <Search className="w-5 h-5" />
           </button>
           <RequestQuoteButton variant="desktop" />
         </div>
       </div>
+      <SearchPopup 
+        isOpen={isSearchPopupOpen} 
+        onClose={() => setIsSearchPopupOpen(false)} 
+      />
     </div>
   );
 }

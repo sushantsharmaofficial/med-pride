@@ -12,6 +12,7 @@ import {
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import RequestQuoteButton from "@/components/common/RequestQuoteButton";
+import SearchPopup from "@/components/common/SearchPopup";
 
 // Import categories and brands from ProductsDropdown
 // Categories for the dropdown (matching those in the SideFilter)
@@ -93,6 +94,7 @@ interface MobileNavbarProps {
 export default function MobileNavbar({ scrolled }: MobileNavbarProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [productsOpen, setProductsOpen] = useState(false);
+  const [isSearchPopupOpen, setIsSearchPopupOpen] = useState(false);
   const [categorySection, setCategorySection] = useState<
     "categories" | "brands"
   >("categories");
@@ -172,6 +174,7 @@ export default function MobileNavbar({ scrolled }: MobileNavbarProps) {
             <button
               aria-label="Search"
               className="flex items-center hover:bg-secondary hover:text-white transition-all duration-300 bg-transparent text-primary border rounded-full p-2 group border-primary hover:border-secondary cursor-pointer"
+              onClick={() => setIsSearchPopupOpen(true)}
             >
               <Search className="w-4 h-4" />
             </button>
@@ -188,6 +191,11 @@ export default function MobileNavbar({ scrolled }: MobileNavbarProps) {
           </div>
         </div>
       </div>
+
+      <SearchPopup 
+        isOpen={isSearchPopupOpen} 
+        onClose={() => setIsSearchPopupOpen(false)} 
+      />
 
       {/* Mobile Menu Overlay */}
       <AnimatePresence>

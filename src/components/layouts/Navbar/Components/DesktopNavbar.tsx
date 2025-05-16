@@ -2,9 +2,10 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight, ChevronDown, Heart, Search, FileText } from "lucide-react";
+import { ChevronDown, Search } from "lucide-react";
 import ProductsDropdown from "./ProductsDropdown";
 import { useState } from "react";
+import RequestQuoteButton from "@/components/common/RequestQuoteButton";
 
 interface DesktopNavbarProps {
   scrolled: boolean;
@@ -96,34 +97,7 @@ export default function DesktopNavbar({ scrolled }: DesktopNavbarProps) {
           >
             <Search className="w-5 h-5" />
           </button>
-          <Link
-            href="/quote"
-            className={`
-              flex items-center bg-secondary text-white 
-              transition-all duration-300 ease-out
-              border-none rounded-3xl  group 
-              shadow-pop-sm hover:bg-primary px-5 py-3 text-base"
-              
-            `}
-          >
-            <FileText
-              className={`
-                mr-2 transition-all duration-300 font-primary w-4.5 h-4.5
-
-              `}
-              aria-hidden="true"
-            />
-            Request Quote
-            <ArrowRight
-              className={`
-                ml-2 group-hover:translate-x-1 transition-all duration-300 w-4.5 h-4.5
-
-              `}
-              aria-hidden="true"
-            />
-          </Link>
-
-         
+          <RequestQuoteButton variant="desktop" />
         </div>
       </div>
     </div>

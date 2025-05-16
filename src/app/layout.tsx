@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import MainNavbar from "@/components/layouts/Navbar/mainNavbar";
 import Footer from "@/components/layouts/Footer/footer";
+import { Toaster } from "react-hot-toast";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,6 +32,31 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col min-h-screen`}
         suppressHydrationWarning
       >
+        <Toaster
+          position="top-right"
+          toastOptions={{
+            duration: 5000,
+            style: {
+              background: "#ffffff",
+              color: "#333333",
+              boxShadow: "0 8px 16px rgba(0, 0, 0, 0.1)",
+              border: "1px solid #e2e8f0",
+              borderRadius: "0.5rem",
+            },
+            success: {
+              iconTheme: {
+                primary: "#0087ff", // Using secondary color from theme
+                secondary: "#ffffff",
+              },
+            },
+            error: {
+              iconTheme: {
+                primary: "#ef4444",
+                secondary: "#ffffff",
+              },
+            },
+          }}
+        />
         <MainNavbar />
         <main className="flex-grow">{children}</main>
         <Footer />

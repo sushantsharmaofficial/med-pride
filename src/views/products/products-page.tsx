@@ -336,11 +336,15 @@ export default function ProductsPage({ params }: ProductsPageProps) {
                   fullPage={false}
                 />
               ) : (
-                <div className="col-span-3 md:col-span-2 lg:col-span-3 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                filteredProducts.length > 0 ? (
+                  <div className="col-span-3 md:col-span-2 lg:col-span-3 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                   {displayedProducts.map((product) => (
                     <ProductCard key={product._id} product={product} />
                   ))}
                 </div>
+                ) : (
+                  <ProductNotFound />
+                )
               )}
 
               {/* Use the new Pagination component */}

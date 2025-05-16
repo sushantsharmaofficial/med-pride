@@ -5,14 +5,13 @@ import Image from "next/image";
 import {
   ArrowRight,
   ChevronDown,
-  Heart,
   Menu,
   Search,
   X,
-  FileText,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import RequestQuoteButton from "@/components/common/RequestQuoteButton";
 
 // Import categories and brands from ProductsDropdown
 // Categories for the dropdown (matching those in the SideFilter)
@@ -380,15 +379,7 @@ export default function MobileNavbar({ scrolled }: MobileNavbarProps) {
               </nav>
 
               <div className="px-4 py-3 border-t">
-                <Link
-                  href="/quote"
-                  onClick={() => setIsMenuOpen(false)}
-                  className="flex items-center justify-center gap-2 w-full px-4 py-3 bg-secondary text-white rounded-3xl font-medium shadow-md hover:bg-primary transition-colors"
-                >
-                  <FileText className="w-4 h-4" />
-                  Request Quote
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-all duration-300" />
-                </Link>
+                <RequestQuoteButton variant="mobile" />
               </div>
 
               <div className="px-4 py-6 border-t">

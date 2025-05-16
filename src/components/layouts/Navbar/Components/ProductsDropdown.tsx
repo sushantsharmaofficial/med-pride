@@ -1,81 +1,25 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { getDepartments, getDepartmentCount } from "@/api/Departments/departments.api";
+import { getBrands, getBrandCount } from "@/api/Brands/brands.api";
+import { Loader } from "@/components/ui";
+interface Department {
+  _id: string;
+  name: string;
+  slug: string;
+  count?: number;
+}
 
-// Categories for the dropdown (matching those in the SideFilter)
-const productCategories = [
-  {
-    id: "diagnostic",
-    name: "Diagnostic Equipment",
-    count: 124,
-    slug: "diagnostic-equipment",
-  },
-  {
-    id: "surgical",
-    name: "Surgical Instruments",
-    count: 98,
-    slug: "surgical-instruments",
-  },
-  {
-    id: "monitoring",
-    name: "Monitoring Devices",
-    count: 76,
-    slug: "monitoring-devices",
-  },
-  {
-    id: "imaging",
-    name: "Imaging Systems",
-    count: 52,
-    slug: "imaging-systems",
-  },
-  {
-    id: "laboratory",
-    name: "Laboratory Equipment",
-    count: 87,
-    slug: "laboratory-equipment",
-  },
-  {
-    id: "dental",
-    name: "Dental Equipment",
-    count: 63,
-    slug: "dental-equipment",
-  },
-  {
-    id: "physiotherapy",
-    name: "Physiotherapy Equipment",
-    count: 45,
-    slug: "physiotherapy-equipment",
-  },
-  {
-    id: "emergency",
-    name: "Emergency Care",
-    count: 38,
-    slug: "emergency-care",
-  },
-];
-
-// Brands for the dropdown
-const brands = [
-  {
-    id: "siemens",
-    name: "Siemens Healthineers",
-    count: 42,
-    slug: "siemens-healthineers",
-  },
-  {
-    id: "philips",
-    name: "Philips Healthcare",
-    count: 38,
-    slug: "philips-healthcare",
-  },
-  { id: "ge", name: "GE Healthcare", count: 35, slug: "ge-healthcare" },
-  { id: "medtronic", name: "Medtronic", count: 29, slug: "medtronic" },
-  { id: "drager", name: "Drager", count: 24, slug: "drager" },
-  { id: "zeiss", name: "Carl Zeiss", count: 18, slug: "carl-zeiss" },
-];
+interface Brand {
+  _id: string;
+  name: string;
+  slug: string;
+  count?: number;
+}
 
 interface ProductsDropdownProps {
   isVisible: boolean;
@@ -86,6 +30,52 @@ export default function ProductsDropdown({
   isVisible,
   onOptionClick,
 }: ProductsDropdownProps) {
+  const [departments, setDepartments] = useState<Department[]>([]);
+  const [brands, setBrands] = useState<Brand[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        
+        // Fetch departments
+        const departmentsData = await getDepartments();
+        
+        // Fetch department counts and add to department objects
+        const departmentsWithCounts = await Promise.all(
+          departmentsData.map(async (dept: Department) => {
+            const count = await getDepartmentCount(dept._id);
+            return { ...dept, count };
+          })
+        );
+        
+        setDepartments(departmentsWithCounts);
+        
+        // Fetch brands
+        const brandsData = await getBrands();
+        
+        // Fetch brand counts and add to brand objects
+        const brandsWithCounts = await Promise.all(
+          brandsData.map(async (brand: Brand) => {
+            const count = await getBrandCount(brand._id);
+            return { ...brand, count };
+          })
+        );
+        
+        setBrands(brandsWithCounts);
+      } catch (error) {
+        console.error("Error fetching dropdown data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (isVisible) {
+      fetchData();
+    }
+  }, [isVisible]);
+
   return (
     <AnimatePresence>
       {isVisible && (
@@ -109,22 +99,28 @@ export default function ProductsDropdown({
             {/* Categories Section */}
             <div>
               <h4 className="text-lg font-secondary font-medium text-primary border-b border-gray-200 pb-2 mb-3">
-                Categories
+                Departments
               </h4>
               <div className="grid grid-cols-1 gap-2 max-h-[300px] overflow-y-auto pr-2">
-                {productCategories.map((category) => (
-                  <Link
-                    key={category.id}
-                    href={`/products/category/${category.slug}`}
-                    className="flex items-center justify-between px-3 py-2 rounded-md hover:bg-gray-50 text-gray-700 hover:text-secondary transition-colors duration-200"
-                    onClick={onOptionClick}
-                  >
-                    <span className="font-medium text-sm">{category.name}</span>
-                    <span className="text-xs px-2 py-1 bg-gray-100 rounded-full text-gray-500">
-                      {category.count}
-                    </span>
-                  </Link>
-                ))}
+                {loading ? (
+                  <div className="flex items-center justify-center p-4">
+                    <Loader/>
+                  </div>
+                ) : (
+                  departments.map((department) => (
+                    <Link
+                      key={department._id}
+                      href={`/products/department/${department.slug}`}
+                      className="flex items-center justify-between px-3 py-2 rounded-md hover:bg-gray-50 text-gray-700 hover:text-secondary transition-colors duration-200"
+                      onClick={onOptionClick}
+                    >
+                      <span className="font-medium text-sm">{department.name}</span>
+                      <span className="text-xs px-2 py-1 bg-gray-100 rounded-full text-gray-500">
+                        {department.count || 0}
+                      </span>
+                    </Link>
+                  ))
+                )}
               </div>
             </div>
 
@@ -134,19 +130,25 @@ export default function ProductsDropdown({
                 Brands
               </h4>
               <div className="grid grid-cols-1 gap-2 max-h-[300px] overflow-y-auto pr-2">
-                {brands.map((brand) => (
-                  <Link
-                    key={brand.id}
-                    href={`/products/brand/${brand.slug}`}
-                    className="flex items-center justify-between px-3 py-2 rounded-md hover:bg-gray-50 text-gray-700 hover:text-secondary transition-colors duration-200"
-                    onClick={onOptionClick}
-                  >
-                    <span className="font-medium text-sm">{brand.name}</span>
-                    <span className="text-xs px-2 py-1 bg-gray-100 rounded-full text-gray-500">
-                      {brand.count}
-                    </span>
-                  </Link>
-                ))}
+                {loading ? (
+                  <div className="flex items-center justify-center p-4">
+                    <Loader/>
+                  </div>
+                ) : (
+                  brands.map((brand) => (
+                    <Link
+                      key={brand._id}
+                      href={`/products/brand/${brand.slug}`}
+                      className="flex items-center justify-between px-3 py-2 rounded-md hover:bg-gray-50 text-gray-700 hover:text-secondary transition-colors duration-200"
+                      onClick={onOptionClick}
+                    >
+                      <span className="font-medium text-sm">{brand.name}</span>
+                      <span className="text-xs px-2 py-1 bg-gray-100 rounded-full text-gray-500">
+                        {brand.count || 0}
+                      </span>
+                    </Link>
+                  ))
+                )}
               </div>
             </div>
           </div>

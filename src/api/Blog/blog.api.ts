@@ -1,5 +1,5 @@
 import { client } from "@/sanity/lib/client";
-import { blogBySlugQuery, blogQuery } from "../GROQ/Queries";
+import { blogBySlugQuery, blogQuery, blogBySearchQuery } from "../GROQ/Queries";
 
 export interface Blog {
   _id: string;
@@ -34,5 +34,12 @@ export async function getBlogs(): Promise<Blog[]> {
 
 export async function getBlogBySlug(slug: string): Promise<Blog> {
   return await client.fetch(blogBySlugQuery, { slug });
+}
 
+export interface BlogSearchParams {
+  searchQuery: string;
+}
+
+export async function getBlogsBySearch({ searchQuery }: BlogSearchParams): Promise<Blog[]> {
+  return await client.fetch(blogBySearchQuery, { searchQuery: `*${searchQuery}*` });
 }

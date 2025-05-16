@@ -13,79 +13,23 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import RequestQuoteButton from "@/components/common/RequestQuoteButton";
 import SearchPopup from "@/components/common/SearchPopup";
+import { getDepartments, getDepartmentCount } from "@/api/Departments/departments.api";
+import { getBrands, getBrandCount } from "@/api/Brands/brands.api";
+import { Loader } from "@/components/ui";
 
-// Import categories and brands from ProductsDropdown
-// Categories for the dropdown (matching those in the SideFilter)
-const productCategories = [
-  {
-    id: "diagnostic",
-    name: "Diagnostic Equipment",
-    count: 124,
-    slug: "diagnostic-equipment",
-  },
-  {
-    id: "surgical",
-    name: "Surgical Instruments",
-    count: 98,
-    slug: "surgical-instruments",
-  },
-  {
-    id: "monitoring",
-    name: "Monitoring Devices",
-    count: 76,
-    slug: "monitoring-devices",
-  },
-  {
-    id: "imaging",
-    name: "Imaging Systems",
-    count: 52,
-    slug: "imaging-systems",
-  },
-  {
-    id: "laboratory",
-    name: "Laboratory Equipment",
-    count: 87,
-    slug: "laboratory-equipment",
-  },
-  {
-    id: "dental",
-    name: "Dental Equipment",
-    count: 63,
-    slug: "dental-equipment",
-  },
-  {
-    id: "physiotherapy",
-    name: "Physiotherapy Equipment",
-    count: 45,
-    slug: "physiotherapy-equipment",
-  },
-  {
-    id: "emergency",
-    name: "Emergency Care",
-    count: 38,
-    slug: "emergency-care",
-  },
-];
+interface Department {
+  _id: string;
+  name: string;
+  slug: string;
+  count?: number;
+}
 
-// Brands for the dropdown
-const brands = [
-  {
-    id: "siemens",
-    name: "Siemens Healthineers",
-    count: 42,
-    slug: "siemens-healthineers",
-  },
-  {
-    id: "philips",
-    name: "Philips Healthcare",
-    count: 38,
-    slug: "philips-healthcare",
-  },
-  { id: "ge", name: "GE Healthcare", count: 35, slug: "ge-healthcare" },
-  { id: "medtronic", name: "Medtronic", count: 29, slug: "medtronic" },
-  { id: "drager", name: "Drager", count: 24, slug: "drager" },
-  { id: "zeiss", name: "Carl Zeiss", count: 18, slug: "carl-zeiss" },
-];
+interface Brand {
+  _id: string;
+  name: string;
+  slug: string;
+  count?: number;
+}
 
 interface MobileNavbarProps {
   scrolled: boolean;
@@ -96,8 +40,11 @@ export default function MobileNavbar({ scrolled }: MobileNavbarProps) {
   const [productsOpen, setProductsOpen] = useState(false);
   const [isSearchPopupOpen, setIsSearchPopupOpen] = useState(false);
   const [categorySection, setCategorySection] = useState<
-    "categories" | "brands"
-  >("categories");
+    "department" | "brands"
+  >("department");
+  const [departments, setDepartments] = useState<Department[]>([]);
+  const [brands, setBrands] = useState<Brand[]>([]);
+  const [loading, setLoading] = useState(true);
 
   // Prevent scrolling when mobile menu is open
   useEffect(() => {
@@ -125,6 +72,49 @@ export default function MobileNavbar({ scrolled }: MobileNavbarProps) {
       window.removeEventListener("resize", handleResize);
     };
   }, []);
+
+  // Fetch departments and brands when products dropdown opens
+  useEffect(() => {
+    const fetchData = async () => {
+      if (productsOpen) {
+        try {
+          setLoading(true);
+          
+          // Fetch departments
+          const departmentsData = await getDepartments();
+          
+          // Fetch department counts and add to department objects
+          const departmentsWithCounts = await Promise.all(
+            departmentsData.map(async (dept: Department) => {
+              const count = await getDepartmentCount(dept._id);
+              return { ...dept, count };
+            })
+          );
+          
+          setDepartments(departmentsWithCounts);
+          
+          // Fetch brands
+          const brandsData = await getBrands();
+          
+          // Fetch brand counts and add to brand objects
+          const brandsWithCounts = await Promise.all(
+            brandsData.map(async (brand: Brand) => {
+              const count = await getBrandCount(brand._id);
+              return { ...brand, count };
+            })
+          );
+          
+          setBrands(brandsWithCounts);
+        } catch (error) {
+          console.error("Error fetching mobile dropdown data:", error);
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchData();
+  }, [productsOpen]);
 
   // Handler to close the menu and products dropdown
   const handleOptionClick = () => {
@@ -282,15 +272,15 @@ export default function MobileNavbar({ scrolled }: MobileNavbarProps) {
                                 <div className="flex border-b">
                                   <button
                                     onClick={() =>
-                                      setCategorySection("categories")
+                                      setCategorySection("department")
                                     }
                                     className={`flex-1 py-2 text-sm font-medium ${
-                                      categorySection === "categories"
+                                      categorySection === "department"
                                         ? "text-secondary border-b-2 border-secondary"
                                         : "text-gray-500"
                                     }`}
                                   >
-                                    Categories
+                                    Departments
                                   </button>
                                   <button
                                     onClick={() => setCategorySection("brands")}
@@ -306,46 +296,62 @@ export default function MobileNavbar({ scrolled }: MobileNavbarProps) {
 
                                 {/* Categories or Brands Content */}
                                 <div className="py-3 px-4">
-                                  {categorySection === "categories" && (
-                                    <ul className="space-y-2 max-h-[300px] overflow-y-auto">
-                                      {productCategories.map((category) => (
-                                        <li key={category.id}>
-                                          <Link
-                                            href={`/products/category/${category.slug}`}
-                                            className="flex items-center justify-between px-2 py-2 rounded-md hover:bg-gray-50 text-gray-700"
-                                            onClick={handleOptionClick}
-                                          >
-                                            <span className="text-sm">
-                                              {category.name}
-                                            </span>
-                                            <span className="text-xs px-2 py-1 bg-gray-100 rounded-full text-gray-500">
-                                              {category.count}
-                                            </span>
-                                          </Link>
-                                        </li>
-                                      ))}
-                                    </ul>
+                                  {categorySection === "department" && (
+                                    <>
+                                      {loading ? (
+                                        <div className="flex items-center justify-center p-4">
+                                          <Loader/>
+                                        </div>
+                                      ) : (
+                                        <ul className="space-y-2 max-h-[300px] overflow-y-auto">
+                                          {departments.map((department) => (
+                                            <li key={department._id}>
+                                              <Link
+                                                href={`/products/department/${department.slug}`}
+                                                className="flex items-center justify-between px-2 py-2 rounded-md hover:bg-gray-50 text-gray-700"
+                                                onClick={handleOptionClick}
+                                              >
+                                                <span className="text-sm">
+                                                  {department.name}
+                                                </span>
+                                                <span className="text-xs px-2 py-1 bg-gray-100 rounded-full text-gray-500">
+                                                  {department.count || 0}
+                                                </span>
+                                              </Link>
+                                            </li>
+                                          ))}
+                                        </ul>
+                                      )}
+                                    </>
                                   )}
 
                                   {categorySection === "brands" && (
-                                    <ul className="space-y-2 max-h-[300px] overflow-y-auto">
-                                      {brands.map((brand) => (
-                                        <li key={brand.id}>
-                                          <Link
-                                            href={`/products/brand/${brand.slug}`}
-                                            className="flex items-center justify-between px-2 py-2 rounded-md hover:bg-gray-50 text-gray-700"
-                                            onClick={handleOptionClick}
-                                          >
-                                            <span className="text-sm">
-                                              {brand.name}
-                                            </span>
-                                            <span className="text-xs px-2 py-1 bg-gray-100 rounded-full text-gray-500">
-                                              {brand.count}
-                                            </span>
-                                          </Link>
-                                        </li>
-                                      ))}
-                                    </ul>
+                                    <>
+                                      {loading ? (
+                                        <div className="flex items-center justify-center p-4">
+                                          <Loader/>
+                                        </div>
+                                      ) : (
+                                        <ul className="space-y-2 max-h-[300px] overflow-y-auto">
+                                          {brands.map((brand) => (
+                                            <li key={brand._id}>
+                                              <Link
+                                                href={`/products/brand/${brand.slug}`}
+                                                className="flex items-center justify-between px-2 py-2 rounded-md hover:bg-gray-50 text-gray-700"
+                                                onClick={handleOptionClick}
+                                              >
+                                                <span className="text-sm">
+                                                  {brand.name}
+                                                </span>
+                                                <span className="text-xs px-2 py-1 bg-gray-100 rounded-full text-gray-500">
+                                                  {brand.count || 0}
+                                                </span>
+                                              </Link>
+                                            </li>
+                                          ))}
+                                        </ul>
+                                      )}
+                                    </>
                                   )}
                                 </div>
 

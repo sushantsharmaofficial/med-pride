@@ -1,43 +1,83 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 
 import HeroSection from "@/components/common/HeroSection";
-import { Blog, getBlogs } from "@/api/Blog/blog.api";
+import { Blog, getBlogs, getBlogsBySearch } from "@/api/Blog/blog.api";
 import ProductNotFound from "../products/components/productNotFound";
 import BlogCard from "./components/blogCard";
+import { Loader } from "@/components/ui";
+
 export default function BlogPage() {
-  const [blogs, setBlogs] = useState<Blog[]>([]);
   const [filteredBlogs, setFilteredBlogs] = useState<Blog[]>([]);
   const [loading, setLoading] = useState(true);
+  const allBlogsRef = useRef<Blog[]>([]);
+  const [initialDataLoaded, setInitialDataLoaded] = useState(false);
 
   useEffect(() => {
-    (async () => {
-      try {
-        const data = await getBlogs();
-        setBlogs(data);
-        setFilteredBlogs(data);
-      } catch (error) {
-        console.error("Error fetching blogs:", error);
-      } finally {
-        setLoading(false);
-      }
-    })();
+    loadAllBlogs();
   }, []);
 
-  const handleSearch = (query: string) => {
-    if (!query) {
-      setFilteredBlogs(blogs);
+  const loadAllBlogs = async () => {
+    if (initialDataLoaded && allBlogsRef.current.length > 0) {
+      setFilteredBlogs(allBlogsRef.current);
       return;
     }
 
-    const filtered = blogs.filter(
-      (blog) =>
-        blog.title.toLowerCase().includes(query.toLowerCase()) ||
-        blog.author.toLowerCase().includes(query.toLowerCase())
-    );
+    setLoading(true);
+    try {
+      const data = await getBlogs();
+      setFilteredBlogs(data);
+      allBlogsRef.current = data;
+      setInitialDataLoaded(true);
+    } catch (error) {
+      console.error("Error fetching blogs:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    setFilteredBlogs(filtered);
+  const handleSearch = async (query: string, searchResults?: Blog[]) => {
+    // If search query is empty, reset to cached blogs
+    if (!query.trim()) {
+      setFilteredBlogs(allBlogsRef.current);
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      // Try client-side filtering for simple queries
+      if (query.trim().length <= 3) {
+        const lowercaseQuery = query.toLowerCase();
+        const filtered = allBlogsRef.current.filter(
+          (blog) =>
+            blog.title.toLowerCase().includes(lowercaseQuery) ||
+            blog.author.toLowerCase().includes(lowercaseQuery)
+        );
+
+        // If we found matches client-side, use them without API call
+        if (filtered.length > 0) {
+          setFilteredBlogs(filtered);
+          setLoading(false);
+          return;
+        }
+      }
+
+      // Fall back to API search for more complex queries
+      if (searchResults) {
+        // If search results are provided directly
+        setFilteredBlogs(searchResults);
+      } else {
+        // Fallback to searching via API if results not provided
+        const results = await getBlogsBySearch({ searchQuery: query });
+        setFilteredBlogs(results);
+      }
+    } catch (error) {
+      console.error("Error searching blogs:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const getExcerpt = (blog: Blog): string => {
@@ -64,7 +104,7 @@ export default function BlogPage() {
       <div className="bg-gradient-to-t from-white to-blue-50 py-16 min-h-screen">
         <div className="container max-w-7xl md:px-6 mx-auto px-4">
           <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+            <Loader size="large" variant="primary" type="trio" fullPage={false} />
           </div>
         </div>
       </div>
@@ -79,6 +119,7 @@ export default function BlogPage() {
           description="Stay informed with the latest advancements in medical equipment and healthcare technology"
           searchPlaceholder="Search articles or authors..."
           onSearch={handleSearch}
+          liveSearch={true}
         />
 
         <div className="grid gap-y-16">

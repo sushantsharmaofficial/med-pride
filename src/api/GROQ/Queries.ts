@@ -104,6 +104,21 @@ export const blogQuery = `*[_type=="blog"] | order(_createdAt desc) {
   relatedProducts
 }`
 
+// Blog Search Query
+export const blogBySearchQuery = `*[_type=="blog" && (title match $searchQuery || author match $searchQuery || content[].children[].text match $searchQuery)] | order(_createdAt desc) {
+  _id,
+  _createdAt,
+  _updatedAt,
+  _type,
+  title,
+  "slug": slug,
+  author,
+  mainImage,
+  publishedAt,
+  content,
+  relatedProducts
+}`
+
 // Blog By Slug Queries
 export const blogBySlugQuery = `*[_type=="blog" && slug.current == $slug][0] {
   _id,
